@@ -61,11 +61,11 @@ func (r *ArticleRepo) List(ctx context.Context, query *types.ArticleListQuery) (
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	q := gorm.G[models.Article](conn)
+	q := gorm.G[models.Article](conn).Where("1 = 1")
 
 	if query.Search != nil && *query.Search != "" {
 		likePattern := "%" + *query.Search + "%"
-		q.Where(
+		q = q.Where(
 			q.Or(
 				tables.Article.Title.Like(likePattern),
 				tables.Article.Content.Like(likePattern),
@@ -74,27 +74,28 @@ func (r *ArticleRepo) List(ctx context.Context, query *types.ArticleListQuery) (
 	}
 
 	if query.Author != nil && *query.Author != "" {
-		q.Where(tables.Article.Author.Eq(*query.Author))
+		q = q.Where(tables.Article.Author.Eq(*query.Author))
 	}
 
 	if query.Category != nil && *query.Category != "" {
-		q.Where(tables.Article.Category.Eq(*query.Category))
+		q = q.Where(tables.Article.Category.Eq(*query.Category))
 	}
 
-	q.Order(tables.Article.CreatedAt.Desc())
-	q.Limit(query.PageSize)
-	q.Offset(query.PageSize * (query.Page - 1))
+	// Count total before applying pagination
+	total, err := q.Count(ctx, "*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to count articles: %w", err)
+	}
+
+	q = q.Order(tables.Article.CreatedAt.Desc())
+	q = q.Limit(query.PageSize)
+	q = q.Offset(query.PageSize * (query.Page - 1))
 
 	articles, err := q.Find(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get article list: %w", err)
 	} else if len(articles) == 0 {
 		return &common.PaginatedResult[models.Article]{Total: 0, List: []models.Article{}}, nil
-	}
-
-	total, err := q.Count(ctx, "*")
-	if err != nil {
-		return nil, fmt.Errorf("failed to count articles: %w", err)
 	}
 
 	return &common.PaginatedResult[models.Article]{Total: int(total), List: articles}, nil

@@ -8,6 +8,7 @@ import (
 	"github.com/ayonli/bilingo/domains/user/service"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
+	"github.com/ayonli/bilingo/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -44,6 +45,11 @@ func listUsers(ctx *fiber.Ctx) error {
 	var query types.UserListQuery
 	if err := ctx.QueryParser(&query); err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("malformed query: %w", err))
+	}
+
+	// Manually parse array parameters
+	if emailList := utils.ParseArrayQuery(ctx, "emails"); len(emailList) > 0 {
+		query.Emails = &emailList
 	}
 
 	result, err := service.ListUsers(ctx.Context(), query)

@@ -39,11 +39,11 @@ func (r *UserRepo) GetList(ctx context.Context, query types.UserListQuery) (*com
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	q := gorm.G[models.User](conn)
+	q := gorm.G[models.User](conn).Where("1 = 1")
 
 	if query.Search != nil && *query.Search != "" {
 		likePattern := "%" + *query.Search + "%"
-		q.Where(
+		q = q.Where(
 			q.Or(
 				tables.User.Name.Like(likePattern),
 				tables.User.Email.Like(likePattern),
@@ -52,30 +52,31 @@ func (r *UserRepo) GetList(ctx context.Context, query types.UserListQuery) (*com
 	}
 
 	if query.Emails != nil && len(*query.Emails) > 0 {
-		q.Where(tables.User.Email.In(*query.Emails...))
+		q = q.Where(tables.User.Email.In(*query.Emails...))
 	}
 
 	if query.Birthdate != nil {
 		if query.Birthdate.Start != nil {
-			q.Where(tables.User.Birthdate.Gte(*query.Birthdate.Start))
+			q = q.Where(tables.User.Birthdate.Gte(*query.Birthdate.Start))
 		}
 		if query.Birthdate.End != nil {
-			q.Where(tables.User.Birthdate.Lte(*query.Birthdate.End))
+			q = q.Where(tables.User.Birthdate.Lte(*query.Birthdate.End))
 		}
 	}
 
-	q.Limit(query.PageSize)
-	q.Offset(query.PageSize * (query.Page - 1))
+	// Count total before applying pagination
+	total, err := q.Count(ctx, "*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to count users: %w", err)
+	}
+
+	q = q.Limit(query.PageSize)
+	q = q.Offset(query.PageSize * (query.Page - 1))
 	users, err := q.Find(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user list: %w", err)
 	} else if len(users) == 0 {
 		return &common.PaginatedResult[models.User]{Total: 0, List: []models.User{}}, nil
-	}
-
-	total, err := q.Count(ctx, "*")
-	if err != nil {
-		return nil, fmt.Errorf("failed to count users: %w", err)
 	}
 
 	return &common.PaginatedResult[models.User]{Total: int(total), List: users}, nil
