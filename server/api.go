@@ -24,10 +24,10 @@ func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
 	})
 }
 
-func Error(ctx *fiber.Ctx, code int, message string) error {
+func Error(ctx *fiber.Ctx, code int, err error) error {
 	return ctx.JSON(common.ApiResult[any]{
 		Success: false,
 		Code:    code,
-		Message: message,
+		Message: err.Error(),
 	})
 }
