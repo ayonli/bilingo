@@ -6,3 +6,7 @@ type Author struct {
 	Bio       *string `json:"bio"`
 	Publisher *string `json:"publisher"`
 }
+
+func (a *Author) TableName() string {
+	return "author"
+}

@@ -1,29 +1,29 @@
-import type { AsyncResult, PaginatedResult } from "../../../common"
-import { ApiEndpoint } from "../../../client"
+import type { ApiResult, PaginatedResult } from "../../../common"
+import { ApiEntry } from "../../../client"
 import type { User } from "../models"
 import type { UserListQuery } from "../types"
 
-const userApi = new ApiEndpoint("/users")
+const userApi = new ApiEntry("/users")
 
-export async function getUser(email: string): AsyncResult<User> {
+export async function getUser(email: string): ApiResult<User> {
     return await userApi.get(`/${email}`)
 }
 
-export async function listUsers(query: UserListQuery): AsyncResult<PaginatedResult<User>> {
+export async function listUsers(query: UserListQuery): ApiResult<PaginatedResult<User>> {
     return await userApi.get("/", query)
 }
 
-export async function createUser(data: Partial<User>): AsyncResult<User> {
+export async function createUser(data: Partial<User>): ApiResult<User> {
     return await userApi.post("/", null, data)
 }
 
 export async function updateUser(
     email: string,
     data: Partial<User>,
-): AsyncResult<User> {
+): ApiResult<User> {
     return await userApi.patch(`/${email}`, null, data)
 }
 
-export async function deleteUser(email: string): AsyncResult<null> {
+export async function deleteUser(email: string): ApiResult<null> {
     return await userApi.delete(`/${email}`)
 }

@@ -1,15 +1,15 @@
 import qs from "qs"
-import { Err, Ok } from "@ayonli/jsext/result"
-import type { ApiResult, AsyncResult } from "../common"
-import { stripStart } from "@ayonli/jsext/string"
 import { startsWith } from "@ayonli/jsext/path"
+import { stripStart } from "@ayonli/jsext/string"
+import { Err, Ok, try_ } from "@ayonli/jsext/result"
+import type { ApiResponse, ApiResult } from "../common"
 
 export async function request<T>(
     method: string,
     path: string,
     query: unknown = null,
     data: unknown = null,
-): AsyncResult<T> {
+): ApiResult<T> {
     if (query) {
         const queryString = qs.stringify(query)
         path += `?${queryString}`
@@ -25,9 +25,12 @@ export async function request<T>(
         (data instanceof ReadableStream)
     ) {
         body = data
-    } else {
+    } else if (data !== null && typeof data === "object") {
         body = JSON.stringify(data)
         headers["Content-Type"] = "application/json"
+    } else if (typeof data === "string" || typeof data === "number" || typeof data === "boolean") {
+        body = data.toString()
+        headers["Content-Type"] = "text/plain"
     }
 
     const response = await fetch(path, {
@@ -36,52 +39,46 @@ export async function request<T>(
         body,
     })
 
-    if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}: ${response.statusText}`)
-    }
+    const { ok, value: result, error } = await try_<ApiResponse<T>, Error>(response.json())
 
-    const result = await response.json() as ApiResult<T>
-    if (result.success) {
-        return Ok((result.data ?? null) as T)
+    if (ok) {
+        if (result.success) {
+            return Ok((result.data ?? null) as T)
+        } else {
+            return Err(result.message || "Unknown error")
+        }
+    } else if (!response.ok) {
+        return Err(`HTTP ${response.status}: ${response.statusText}`)
     } else {
-        return Err(result.message || "Unknown error")
+        return Err(error.message)
     }
 }
 
-export async function apiRequest<T>(
-    method: string,
-    path: string,
-    query: unknown = null,
-    data: unknown = null,
-): AsyncResult<T> {
-    return await request<T>(method, `/api/${stripStart(path, "/")}`, query, data)
-}
-
-export class ApiEndpoint {
+export class ApiEntry {
     private readonly basePath: string
 
     constructor(basePath: string = "/api") {
         if (!startsWith(basePath, "/api")) {
-            basePath = "/api" + stripStart(basePath, "/")
+            basePath = "/api/" + stripStart(basePath, "/")
         }
 
         this.basePath = basePath
     }
 
-    async get<T>(path: string, query: unknown = null): AsyncResult<T> {
-        return await apiRequest<T>("GET", `${this.basePath}/${stripStart(path, "/")}`, query)
+    async get<T>(path: string, query: unknown = null): ApiResult<T> {
+        return await request<T>("GET", `${this.basePath}/${stripStart(path, "/")}`, query)
     }
 
-    async post<T>(path: string, query: unknown = null, data: unknown = null): AsyncResult<T> {
-        return await apiRequest<T>("POST", `${this.basePath}/${stripStart(path, "/")}`, query, data)
+    async post<T>(path: string, query: unknown = null, data: unknown = null): ApiResult<T> {
+        return await request<T>("POST", `${this.basePath}/${stripStart(path, "/")}`, query, data)
     }
 
-    async put<T>(path: string, query: unknown = null, data: unknown = null): AsyncResult<T> {
-        return await apiRequest<T>("PUT", `${this.basePath}/${stripStart(path, "/")}`, query, data)
+    async put<T>(path: string, query: unknown = null, data: unknown = null): ApiResult<T> {
+        return await request<T>("PUT", `${this.basePath}/${stripStart(path, "/")}`, query, data)
     }
 
-    async patch<T>(path: string, query: unknown = null, data: unknown = null): AsyncResult<T> {
-        return await apiRequest<T>(
+    async patch<T>(path: string, query: unknown = null, data: unknown = null): ApiResult<T> {
+        return await request<T>(
             "PATCH",
             `${this.basePath}/${stripStart(path, "/")}`,
             query,
@@ -89,8 +86,8 @@ export class ApiEndpoint {
         )
     }
 
-    async delete<T>(path: string, query: unknown = null, data: unknown = null): AsyncResult<T> {
-        return await apiRequest<T>(
+    async delete<T>(path: string, query: unknown = null, data: unknown = null): ApiResult<T> {
+        return await request<T>(
             "DELETE",
             `${this.basePath}/${stripStart(path, "/")}`,
             query,

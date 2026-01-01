@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -38,11 +39,22 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 	case strings.HasPrefix(dbURL, "sqlite://"):
 		// SQLite: sqlite://path/to/database.db
 		dbPath := strings.TrimPrefix(dbURL, "sqlite://")
+		// Add _loc=auto to properly parse time values
+		if !strings.Contains(dbPath, "?") {
+			dbPath += "?_loc=auto"
+		} else if !strings.Contains(dbPath, "_loc=") {
+			dbPath += "&_loc=auto"
+		}
 		dialect = sqlite.Open(dbPath)
 
 	case strings.HasPrefix(dbURL, "file:"):
 		// SQLite: file:path/to/database.db
 		dbPath := strings.TrimPrefix(dbURL, "file:")
+		if !strings.Contains(dbPath, "?") {
+			dbPath += "?_loc=auto"
+		} else if !strings.Contains(dbPath, "_loc=") {
+			dbPath += "&_loc=auto"
+		}
 		dialect = sqlite.Open(dbPath)
 
 	case strings.HasPrefix(dbURL, "mysql://"):
@@ -71,11 +83,15 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 // If DB_URL is not set, it defaults to SQLite with "gorm.db".
 func UseDefaultDb() (*gorm.DB, error) {
 	once.Do(func() {
+		// Load .env file if it exists (ignore errors if file doesn't exist)
+		_ = godotenv.Load()
+
 		// Try to read DB_URL from environment
 		dbURL := os.Getenv("DB_URL")
+
+		// If not set, default to SQLite
 		if dbURL == "" {
-			defaultDb.Error = fmt.Errorf("DB_URL is not set")
-			return
+			dbURL = "sqlite://gorm.db"
 		}
 
 		db, err := CreateDbConn(dbURL)

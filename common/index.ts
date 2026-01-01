@@ -4,9 +4,9 @@
 // source: api.go
 
 import type { Result } from "@ayonli/jsext/result"
-export type AsyncResult<T> = Promise<Result<T>>
+export type ApiResult<T> = Promise<Result<T, string>>
 
-export interface ApiResult<T extends any> {
+export interface ApiResponse<T extends any> {
     success: boolean
     code: number /* int */
     data?: T

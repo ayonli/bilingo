@@ -11,7 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var UserApi = server.NewApiEndpoint("/users")
+var UserApi = server.NewApiEntry("/users")
 
 func init() {
 	UserApi.Get("/:email", getUser)

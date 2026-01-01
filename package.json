@@ -2,9 +2,11 @@
     "name": "bilingo",
     "version": "1.0.0",
     "scripts": {
-        "build": "npm run build:go && npm run build:web",
-        "build:go": "go build -o ../dist/go/main main.go",
-        "build:web": "vite build",
+        "dev:server": "go run server/main/index.go",
+        "dev:client": "vite",
+        "build": "npm run build:server && npm run build:client",
+        "build:server": "go build -o ../dist/server/main server/main/index.go",
+        "build:client": "vite build",
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",
         "sanitize:ts": "deno lint --fix  && deno fmt && tsc --noEmit",
@@ -12,11 +14,14 @@
     },
     "dependencies": {
         "@ayonli/jsext": "^1.9.0",
+        "@ayonli/react-hooks": "^0.1.9",
         "@vitejs/plugin-react": "^5.1.0",
         "chokidar": "^4.0.3",
         "qs": "^6.14.1",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "react-router": "^7.11.0",
+        "react-router-dom": "^7.11.0",
         "tslib": "^2.8.1"
     },
     "devDependencies": {
@@ -28,6 +33,7 @@
         "tsx": "^4.20.6",
         "typescript": "^5.9.3",
         "vite": "^7.1.12",
+        "vite-plugin-pages": "^0.33.2",
         "vite-tsconfig-paths": "^5.1.4"
     },
     "go2ts": {

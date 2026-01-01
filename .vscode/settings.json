@@ -4,7 +4,8 @@
         "Dialector",
         "gofiber",
         "gorm",
-        "tstype"
+        "tstype",
+        "varchar"
     ],
     "editor.formatOnSave": true,
     "go.lintTool": "golangci-lint",

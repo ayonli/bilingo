@@ -7,7 +7,7 @@ import (
 
 var Api = fiber.New()
 
-func NewApiEndpoint(path string) fiber.Router {
+func NewApiEntry(path string) fiber.Router {
 	return Api.Group(path)
 }
 
@@ -16,7 +16,7 @@ func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
 	if len(message) > 0 {
 		msg = message[0]
 	}
-	return ctx.JSON(common.ApiResult[T]{
+	return ctx.JSON(common.ApiResponse[T]{
 		Success: true,
 		Code:    200,
 		Data:    data,
@@ -25,7 +25,7 @@ func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
 }
 
 func Error(ctx *fiber.Ctx, code int, err error) error {
-	return ctx.JSON(common.ApiResult[any]{
+	return ctx.Status(code).JSON(common.ApiResponse[any]{
 		Success: false,
 		Code:    code,
 		Message: err.Error(),
