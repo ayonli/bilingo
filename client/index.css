@@ -1,3 +1,117 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Comprehensive Markdown styling overrides */
+.prose {
+    @apply text-gray-700;
+    max-width: none !important;
+}
+
+/* Headings */
+.prose h1 {
+    @apply text-4xl font-bold text-gray-900 mt-0 mb-4;
+}
+
+.prose h2 {
+    @apply text-3xl font-bold text-gray-900 mt-8 mb-4;
+}
+
+.prose h3 {
+    @apply text-2xl font-semibold text-gray-900 mt-6 mb-3;
+}
+
+.prose h4 {
+    @apply text-xl font-semibold text-gray-900 mt-6 mb-2;
+}
+
+.prose h5 {
+    @apply text-lg font-semibold text-gray-900 mt-4 mb-2;
+}
+
+.prose h6 {
+    @apply text-base font-semibold text-gray-900 mt-4 mb-2;
+}
+
+/* Paragraphs */
+.prose p {
+    @apply text-gray-700 leading-relaxed mb-4;
+}
+
+/* Lists */
+.prose ul {
+    @apply list-disc list-outside ml-6 mb-4 space-y-2;
+}
+
+.prose ol {
+    @apply list-decimal list-outside ml-6 mb-4 space-y-2;
+}
+
+.prose li {
+    @apply text-gray-700;
+}
+
+.prose li > p {
+    @apply mb-2;
+}
+
+/* Links */
+.prose a {
+    @apply text-blue-600 font-medium no-underline hover:underline;
+}
+
+/* Code */
+.prose code {
+    @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-sm font-semibold;
+}
+
+.prose code::before,
+.prose code::after {
+    content: "" !important;
+}
+
+/* Code blocks */
+.prose pre {
+    @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-4;
+}
+
+.prose pre code {
+    @apply bg-transparent text-gray-100 p-0 text-sm font-normal;
+}
+
+/* Blockquotes */
+.prose blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4;
+}
+
+/* Tables */
+.prose table {
+    @apply w-full border-collapse mb-4;
+}
+
+.prose th {
+    @apply border border-gray-300 bg-gray-100 px-4 py-2 text-left font-semibold;
+}
+
+.prose td {
+    @apply border border-gray-300 px-4 py-2;
+}
+
+/* Horizontal rules */
+.prose hr {
+    @apply border-gray-300 my-8;
+}
+
+/* Images */
+.prose img {
+    @apply rounded-lg my-4;
+}
+
+/* Strong and emphasis */
+.prose strong {
+    @apply font-bold text-gray-900;
+}
+
+.prose em {
+    @apply italic;
+}

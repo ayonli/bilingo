@@ -24,8 +24,16 @@ export default defineConfig({
         pages({
             dirs: [
                 {
+                    dir: "./domains",
+                    baseRoute: "/",
+                },
+                {
                     dir: "./domains/user/views",
                     baseRoute: "/users",
+                },
+                {
+                    dir: "./domains/article/views",
+                    baseRoute: "/articles",
                 },
             ],
         }),
