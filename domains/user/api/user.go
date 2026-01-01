@@ -168,9 +168,14 @@ func logout(ctx *fiber.Ctx) error {
 }
 
 func getMe(ctx *fiber.Ctx) error {
-	email, ok := server.GetUserEmail(ctx.Context())
-	if !ok {
-		return server.Error(ctx, 401, fmt.Errorf("not logged in"))
+	emailInterface := ctx.Locals(string(server.UserEmailKey))
+	if emailInterface == nil {
+		return server.Error(ctx, 401, fmt.Errorf("not logged in: email not found in context"))
+	}
+
+	email, ok := emailInterface.(string)
+	if !ok || email == "" {
+		return server.Error(ctx, 401, fmt.Errorf("not logged in: email is empty or invalid type"))
 	}
 
 	user, err := service.GetUser(ctx.Context(), email)

@@ -84,12 +84,12 @@ export default function UserIndexPage(): JSX.Element {
             <div className="min-h-screen bg-gray-50 py-8 px-4">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">用户管理</h1>
                         <Link
                             to="/users/new"
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                            + New User
+                            + 新建用户
                         </Link>
                     </div>
 
@@ -101,13 +101,13 @@ export default function UserIndexPage(): JSX.Element {
                                     id="search"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="Search by email or name..."
+                                    placeholder="搜索邮箱或姓名..."
                                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                                 <button
                                     type="submit"
                                     className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                    title="Search"
+                                    title="搜索"
                                 >
                                     <svg
                                         className="w-6 h-6"
@@ -131,9 +131,7 @@ export default function UserIndexPage(): JSX.Element {
                                             ? "bg-blue-50 border-blue-300 hover:bg-blue-100"
                                             : "border-gray-300 hover:bg-gray-50"
                                     }`}
-                                    title={showAdvancedFilters
-                                        ? "Hide advanced filters"
-                                        : "Show advanced filters"}
+                                    title={showAdvancedFilters ? "隐藏高级筛选" : "显示高级筛选"}
                                 >
                                     <svg
                                         className={`w-6 h-6 ${
@@ -156,7 +154,7 @@ export default function UserIndexPage(): JSX.Element {
                                         type="button"
                                         onClick={handleClearFilters}
                                         className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                                        title="Clear all filters"
+                                        title="清除所有筛选"
                                     >
                                         <svg
                                             className="w-6 h-6 text-gray-600"
@@ -182,7 +180,7 @@ export default function UserIndexPage(): JSX.Element {
                                             htmlFor="emails"
                                             className="block text-sm font-medium text-gray-700 mb-2"
                                         >
-                                            Filter by Specific Emails (one per line)
+                                            按指定邮箱筛选（每行一个）
                                         </label>
                                         <textarea
                                             id="emails"
@@ -193,7 +191,7 @@ export default function UserIndexPage(): JSX.Element {
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                                         />
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Enter one email address per line
+                                            每行输入一个邮箱地址
                                         </p>
                                     </div>
 
@@ -203,7 +201,7 @@ export default function UserIndexPage(): JSX.Element {
                                                 htmlFor="birthdateStart"
                                                 className="block text-sm font-medium text-gray-700 mb-2"
                                             >
-                                                Birthdate From
+                                                生日起始日期
                                             </label>
                                             <input
                                                 type="date"
@@ -218,7 +216,7 @@ export default function UserIndexPage(): JSX.Element {
                                                 htmlFor="birthdateEnd"
                                                 className="block text-sm font-medium text-gray-700 mb-2"
                                             >
-                                                Birthdate To
+                                                生日结束日期
                                             </label>
                                             <input
                                                 type="date"
@@ -244,13 +242,13 @@ export default function UserIndexPage(): JSX.Element {
                         {loading
                             ? (
                                 <div className="text-center py-12">
-                                    <p className="text-gray-500">Loading...</p>
+                                    <p className="text-gray-500">加载中...</p>
                                 </div>
                             )
                             : users.length === 0
                             ? (
                                 <div className="text-center py-12">
-                                    <p className="text-gray-500">No users found</p>
+                                    <p className="text-gray-500">未找到用户</p>
                                 </div>
                             )
                             : (
@@ -259,19 +257,19 @@ export default function UserIndexPage(): JSX.Element {
                                         <thead className="bg-gray-50">
                                             <tr>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Email
+                                                    邮箱
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Name
+                                                    姓名
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Birthdate
+                                                    生日
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Created At
+                                                    创建时间
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Updated At
+                                                    更新时间
                                                 </th>
                                             </tr>
                                         </thead>
@@ -307,10 +305,10 @@ export default function UserIndexPage(): JSX.Element {
                                     {totalPages > 1 && (
                                         <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
                                             <div className="text-sm text-gray-700">
-                                                Showing {(currentPage - 1) * pageSize + 1} to{" "}
-                                                {Math.min(currentPage * pageSize, total)} of {total}
+                                                显示 {(currentPage - 1) * pageSize + 1} 到{" "}
+                                                {Math.min(currentPage * pageSize, total)} 条，共
                                                 {" "}
-                                                results
+                                                {total} 条结果
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
@@ -320,7 +318,7 @@ export default function UserIndexPage(): JSX.Element {
                                                     disabled={currentPage === 1}
                                                     className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                 >
-                                                    Previous
+                                                    上一页
                                                 </button>
                                                 <div className="flex items-center gap-2">
                                                     {Array.from(
@@ -367,7 +365,7 @@ export default function UserIndexPage(): JSX.Element {
                                                     disabled={currentPage === totalPages}
                                                     className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                 >
-                                                    Next
+                                                    下一页
                                                 </button>
                                             </div>
                                         </div>

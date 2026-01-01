@@ -26,14 +26,43 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         if (result.ok) {
             setCurrentUser(result.value)
         } else {
-            setCurrentUser(null)
+            // Only clear user on authentication errors, not network/other errors
+            // This prevents clearing cached user on temporary failures
+            if (result.error.includes("401") || result.error.includes("not logged in")) {
+                setCurrentUser(null)
+            }
+            // Otherwise keep current state (might be from localStorage cache)
         }
         setLoading(false)
     }
 
+    // Restore cached user (optimistic) to reduce flicker on refresh, then validate with getMe
     useEffect(() => {
+        try {
+            const raw = localStorage.getItem("currentUser")
+            if (raw) {
+                const parsed = JSON.parse(raw) as User
+                setCurrentUser(parsed)
+            }
+        } catch (_e) {
+            // ignore parse errors
+        }
+
         void refreshUser()
     }, [])
+
+    // Persist currentUser to localStorage so login survives page refresh
+    useEffect(() => {
+        if (currentUser) {
+            try {
+                localStorage.setItem("currentUser", JSON.stringify(currentUser))
+            } catch (_e) {
+                // ignore storage errors
+            }
+        } else {
+            localStorage.removeItem("currentUser")
+        }
+    }, [currentUser])
 
     return (
         <AuthContext.Provider value={{ currentUser, loading, setCurrentUser, refreshUser }}>

@@ -9,8 +9,8 @@ export type ApiResult<T> = Promise<Result<T, string>>
 export interface ApiResponse<T extends any> {
     success: boolean
     code: number /* int */
-    data?: T
-    message?: string
+    data: T | null
+    message: string
 }
 
 //////////

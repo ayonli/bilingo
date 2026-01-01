@@ -7,6 +7,11 @@ import (
 
 var Api = fiber.New()
 
+func init() {
+	// Register AuthMiddleware before any routes are registered
+	Api.Use(AuthMiddleware)
+}
+
 func NewApiEntry(path string) fiber.Router {
 	return Api.Group(path)
 }

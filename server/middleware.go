@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -31,7 +32,7 @@ func AuthMiddleware(ctx *fiber.Ctx) error {
 		return ctx.Next()
 	}
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -42,8 +43,9 @@ func AuthMiddleware(ctx *fiber.Ctx) error {
 		return ctx.Next()
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		if email, ok := claims["email"].(string); ok {
+	if claims, ok := token.Claims.(*jwt.MapClaims); ok {
+		claimsMap := *claims
+		if email, ok := claimsMap["email"].(string); ok {
 			ctx.Locals(string(UserEmailKey), email)
 
 			// Also set in context for service layer
@@ -72,8 +74,11 @@ func GetUserEmail(ctx context.Context) (string, bool) {
 
 // GenerateToken generates a JWT token for the given email
 func GenerateToken(email string) (string, error) {
+	now := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
+		"iat":   now.Unix(),
+		"exp":   now.Add(7 * 24 * time.Hour).Unix(), // 7 days
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)

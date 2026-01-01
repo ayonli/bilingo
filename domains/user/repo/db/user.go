@@ -11,7 +11,6 @@ import (
 	"github.com/ayonli/bilingo/domains/user/repo/db/tables"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -88,15 +87,10 @@ func (r *UserRepo) Create(ctx context.Context, user *types.UserCreate) (*models.
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	hashedPasswordStr, err := HashPassword(user.Password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to hash password: %w", err)
-	}
-
 	newUser := models.User{
 		Email:     user.Email,
 		Name:      user.Name,
-		Password:  &hashedPasswordStr,
+		Password:  &user.Password,
 		Birthdate: user.Birthdate,
 	}
 
@@ -121,11 +115,7 @@ func (r *UserRepo) Update(ctx context.Context, email string, user *types.UserUpd
 		existingUser.Name = *user.Name
 	}
 	if user.Password != nil {
-		hashedPasswordStr, err := HashPassword(*user.Password)
-		if err != nil {
-			return nil, fmt.Errorf("failed to hash password: %w", err)
-		}
-		existingUser.Password = &hashedPasswordStr
+		existingUser.Password = user.Password
 	}
 	if user.Birthdate != nil {
 		existingUser.Birthdate = user.Birthdate
@@ -166,18 +156,4 @@ func (r *UserRepo) Delete(ctx context.Context, email string) error {
 	}
 
 	return nil
-}
-
-// VerifyPassword verifies if the provided password matches the stored hash
-func VerifyPassword(hashedPassword string, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-}
-
-// HashPassword hashes a plain text password using bcrypt
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
 }

@@ -75,7 +75,7 @@ export default function UserDetailPage(): JSX.Element {
 
         if (ok) {
             setSearchParams({})
-            await alert("Password changed successfully!")
+            await alert("密码修改成功！")
         } else {
             throw new Error(apiError)
         }
@@ -98,17 +98,17 @@ export default function UserDetailPage(): JSX.Element {
             return
         }
 
-        if (!await confirm(`Are you sure you want to delete user ${user.email}?`)) {
+        if (!await confirm(`确定要删除用户 ${user.email} 吗？`)) {
             return
         }
 
         const { ok, error: apiError } = await deleteUser(decodeURIComponent(email))
 
         if (ok) {
-            await alert("User deleted successfully!")
+            await alert("用户删除成功！")
             navigate("/users")
         } else {
-            await alert(`Failed to delete user: ${apiError}`)
+            await alert(`删除用户失败: ${apiError}`)
         }
     }
 
@@ -117,7 +117,7 @@ export default function UserDetailPage(): JSX.Element {
             <ProtectedRoute>
                 <div className="min-h-screen bg-gray-50 py-8 px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <p className="text-gray-500">Loading...</p>
+                        <p className="text-gray-500">加载中...</p>
                     </div>
                 </div>
             </ProtectedRoute>
@@ -130,14 +130,14 @@ export default function UserDetailPage(): JSX.Element {
                 <div className="min-h-screen bg-gray-50 py-8 px-4">
                     <div className="max-w-4xl mx-auto">
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                            {error || "User not found"}
+                            {error || "未找到用户"}
                         </div>
                         <button
                             type="button"
                             onClick={() => navigate("/users")}
                             className="mt-4 text-blue-600 hover:text-blue-800"
                         >
-                            ← Back to users
+                            ← 返回用户列表
                         </button>
                     </div>
                 </div>
@@ -154,17 +154,17 @@ export default function UserDetailPage(): JSX.Element {
                         onClick={() => navigate("/users")}
                         className="mb-6 text-blue-600 hover:text-blue-800 flex items-center gap-2"
                     >
-                        ← Back to users
+                        ← 返回用户列表
                     </button>
 
                     <div className="mb-8">
                         <div className="flex justify-between items-center">
                             <h1 className="text-3xl font-bold text-gray-900">
                                 {isEditMode
-                                    ? "Edit User"
+                                    ? "编辑用户"
                                     : isChangePasswordMode
-                                    ? "Change Password"
-                                    : "User Details"}
+                                    ? "修改密码"
+                                    : "用户详情"}
                             </h1>
                             {!isEditMode && !isChangePasswordMode && isOwnProfile && (
                                 <div className="flex gap-3">
@@ -173,21 +173,21 @@ export default function UserDetailPage(): JSX.Element {
                                         onClick={handleEdit}
                                         className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                                     >
-                                        Edit
+                                        编辑
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleChangePasswordClick}
                                         className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
                                     >
-                                        Change Password
+                                        修改密码
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleDelete}
                                         className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
                                     >
-                                        Delete
+                                        删除
                                     </button>
                                 </div>
                             )}
@@ -228,24 +228,22 @@ export default function UserDetailPage(): JSX.Element {
                             <div className="bg-white shadow-md rounded-lg p-6">
                                 <dl className="grid grid-cols-1 gap-6">
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Email</dt>
+                                        <dt className="text-sm font-medium text-gray-500">邮箱</dt>
                                         <dd className="mt-1 text-lg text-gray-900">{user.email}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">Name</dt>
+                                        <dt className="text-sm font-medium text-gray-500">姓名</dt>
                                         <dd className="mt-1 text-lg text-gray-900">{user.name}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-sm font-medium text-gray-500">
-                                            Birthdate
-                                        </dt>
+                                        <dt className="text-sm font-medium text-gray-500">生日</dt>
                                         <dd className="mt-1 text-lg text-gray-900">
                                             {user.birthdate || "-"}
                                         </dd>
                                     </div>
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">
-                                            Created At
+                                            创建时间
                                         </dt>
                                         <dd className="mt-1 text-lg text-gray-900">
                                             {new Date(user.created_at).toLocaleString()}
@@ -253,7 +251,7 @@ export default function UserDetailPage(): JSX.Element {
                                     </div>
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">
-                                            Updated At
+                                            更新时间
                                         </dt>
                                         <dd className="mt-1 text-lg text-gray-900">
                                             {new Date(user.updated_at).toLocaleString()}
