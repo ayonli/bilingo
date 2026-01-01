@@ -1,0 +1,93 @@
+package server
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"sync"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+)
+
+type defaultDbType struct {
+	Conn  *gorm.DB
+	Error error
+}
+
+var (
+	defaultDb defaultDbType
+	once      sync.Once
+)
+
+// CreateDbConn creates a database connection based on the provided database URL.
+// Supported formats:
+//   - SQLite: sqlite://path/to/database.db or file:path/to/database.db
+//   - MySQL: mysql://user:password@tcp(host:port)/dbname?params
+//   - PostgreSQL: postgresql://user:password@host:port/dbname?params or postgres://...
+func CreateDbConn(dbURL string) (*gorm.DB, error) {
+	if dbURL == "" {
+		return nil, fmt.Errorf("database URL is empty")
+	}
+
+	var dialect gorm.Dialector
+
+	switch {
+	case strings.HasPrefix(dbURL, "sqlite://"):
+		// SQLite: sqlite://path/to/database.db
+		dbPath := strings.TrimPrefix(dbURL, "sqlite://")
+		dialect = sqlite.Open(dbPath)
+
+	case strings.HasPrefix(dbURL, "file:"):
+		// SQLite: file:path/to/database.db
+		dbPath := strings.TrimPrefix(dbURL, "file:")
+		dialect = sqlite.Open(dbPath)
+
+	case strings.HasPrefix(dbURL, "mysql://"):
+		// MySQL: mysql://user:password@tcp(host:port)/dbname?params
+		dsn := strings.TrimPrefix(dbURL, "mysql://")
+		dialect = mysql.Open(dsn)
+
+	case strings.HasPrefix(dbURL, "postgresql://"), strings.HasPrefix(dbURL, "postgres://"):
+		// PostgreSQL: postgresql://user:password@host:port/dbname?params
+		dialect = postgres.Open(dbURL)
+
+	default:
+		return nil, fmt.Errorf("unsupported database URL format: %s", dbURL)
+	}
+
+	db, err := gorm.Open(dialect, &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	return db, nil
+}
+
+// UseDefaultDb returns the default database connection.
+// It reads the DB_URL from environment variables or .env file.
+// If DB_URL is not set, it defaults to SQLite with "gorm.db".
+func UseDefaultDb() (*gorm.DB, error) {
+	once.Do(func() {
+		// Try to read DB_URL from environment
+		dbURL := os.Getenv("DB_URL")
+		if dbURL == "" {
+			defaultDb.Error = fmt.Errorf("DB_URL is not set")
+			return
+		}
+
+		db, err := CreateDbConn(dbURL)
+		if err != nil {
+			defaultDb.Error = err
+			return
+		}
+		defaultDb.Conn = db
+	})
+
+	if defaultDb.Error != nil {
+		return nil, defaultDb.Error
+	}
+	return defaultDb.Conn, nil
+}

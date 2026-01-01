@@ -1,0 +1,54 @@
+{
+    "cSpell.words": [
+        "bilingo",
+        "Dialector",
+        "gofiber",
+        "gorm",
+        "tdtype"
+    ],
+    "editor.formatOnSave": true,
+    "go.lintTool": "golangci-lint",
+    "go.formatTool": "custom",
+    "go.alternateTools": {
+        "customFormatter": "golangci-lint"
+    },
+    "go.formatFlags": [
+        "fmt",
+        "--stdin"
+    ],
+    "[javascript]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "ayonli.deno-tools"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "python.languageServer": "None",
+    "ruff.interpreter": ["python3.12"]
+}

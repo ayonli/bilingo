@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUnusedParameters": true,
+        "allowArbitraryExtensions": true,
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": true,
+        "module": "preserve",
+        "noUncheckedSideEffectImports": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "importHelpers": true,
+        "noEmit": true,
+        "sourceMap": true,
+        "allowJs": true,
+        "checkJs": false,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "jsx": "react-jsx",
+        "target": "esnext",
+        "skipLibCheck": true
+    },
+    "exclude": [
+        ".*",
+        "node_modules/**/*"
+    ]
+}
