@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/user"
 	"github.com/ayonli/bilingo/domains/user/models"
-	repo "github.com/ayonli/bilingo/domains/user/repo/impl"
+	repo "github.com/ayonli/bilingo/domains/user/repo"
 	"github.com/ayonli/bilingo/domains/user/types"
 )
 

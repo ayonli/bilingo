@@ -5,10 +5,13 @@ import (
 
 	"github.com/ayonli/bilingo/common"
 	"github.com/ayonli/bilingo/domains/user/models"
+	impl "github.com/ayonli/bilingo/domains/user/repo/db"
 	"github.com/ayonli/bilingo/domains/user/types"
 )
 
-type UserRepo interface {
+var UserRepo IUserRepo = &impl.UserRepo{}
+
+type IUserRepo interface {
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	GetList(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error)
 	Create(ctx context.Context, user *types.UserCreate) (*models.User, error)

@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	domain "github.com/ayonli/bilingo/domains/user"
-	"github.com/ayonli/bilingo/domains/user/services"
+	"github.com/ayonli/bilingo/domains/user/service"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +22,7 @@ func init() {
 
 func getUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
-	user, err := services.GetUser(ctx.Context(), email)
+	user, err := service.GetUser(ctx.Context(), email)
 	if err != nil {
 		return err
 	} else if user == nil {
@@ -38,7 +38,7 @@ func listUsers(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	result, err := services.ListUsers(ctx.Context(), query)
+	result, err := service.ListUsers(ctx.Context(), query)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func createUser(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	user, err := services.CreateUser(ctx.Context(), &data)
+	user, err := service.CreateUser(ctx.Context(), &data)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func updateUser(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	user, err := services.UpdateUser(ctx.Context(), email, &data)
+	user, err := service.UpdateUser(ctx.Context(), email, &data)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, "User not found")
 	} else if err != nil {
@@ -79,7 +79,7 @@ func updateUser(ctx *fiber.Ctx) error {
 
 func deleteUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
-	err := services.DeleteUser(ctx.Context(), email)
+	err := service.DeleteUser(ctx.Context(), email)
 
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, "User not found")

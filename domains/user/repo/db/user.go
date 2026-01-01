@@ -1,4 +1,4 @@
-package impl
+package db
 
 import (
 	"context"
@@ -7,22 +7,22 @@ import (
 
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/user"
-	"github.com/ayonli/bilingo/domains/user/db"
 	"github.com/ayonli/bilingo/domains/user/models"
+	"github.com/ayonli/bilingo/domains/user/repo/db/tables"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
 	"gorm.io/gorm"
 )
 
-type userRepoDb struct{}
+type UserRepo struct{}
 
-func (r *userRepoDb) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	user, err := gorm.G[models.User](conn).Where(db.User.Email.Eq(email)).First(ctx)
+	user, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).First(ctx)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	} else if err != nil {
@@ -32,7 +32,7 @@ func (r *userRepoDb) FindByEmail(ctx context.Context, email string) (*models.Use
 	return &user, nil
 }
 
-func (r *userRepoDb) GetList(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
+func (r *UserRepo) GetList(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
@@ -43,21 +43,21 @@ func (r *userRepoDb) GetList(ctx context.Context, query types.UserListQuery) (*c
 	if query.Search != nil {
 		likePattern := "%" + *query.Search + "%"
 		q = q.Or(
-			db.User.Name.Like(likePattern),
-			db.User.Email.Like(likePattern),
+			tables.User.Name.Like(likePattern),
+			tables.User.Email.Like(likePattern),
 		)
 	}
 
 	if len(query.Emails) > 0 {
-		q = q.Where(db.User.Email.In(query.Emails...))
+		q = q.Where(tables.User.Email.In(query.Emails...))
 	}
 
 	if query.Birthdate != nil {
 		if query.Birthdate.Start != nil {
-			q = q.Where(db.User.Birthdate.Gte(*query.Birthdate.Start))
+			q = q.Where(tables.User.Birthdate.Gte(*query.Birthdate.Start))
 		}
 		if query.Birthdate.End != nil {
-			q = q.Where(db.User.Birthdate.Lte(*query.Birthdate.End))
+			q = q.Where(tables.User.Birthdate.Lte(*query.Birthdate.End))
 		}
 	}
 
@@ -78,7 +78,7 @@ func (r *userRepoDb) GetList(ctx context.Context, query types.UserListQuery) (*c
 	return &common.PaginatedResult[models.User]{Total: int(total), List: users}, nil
 }
 
-func (r *userRepoDb) Create(ctx context.Context, user *types.UserCreate) (*models.User, error) {
+func (r *UserRepo) Create(ctx context.Context, user *types.UserCreate) (*models.User, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
@@ -98,7 +98,7 @@ func (r *userRepoDb) Create(ctx context.Context, user *types.UserCreate) (*model
 	return &newUser, nil
 }
 
-func (r *userRepoDb) Update(ctx context.Context, email string, user *types.UserUpdate) (*models.User, error) {
+func (r *UserRepo) Update(ctx context.Context, email string, user *types.UserUpdate) (*models.User, error) {
 	// First, find the existing user using FindByEmail
 	existingUser, err := r.FindByEmail(ctx, email)
 	if err != nil {
@@ -137,13 +137,13 @@ func (r *userRepoDb) Update(ctx context.Context, email string, user *types.UserU
 	return existingUser, nil
 }
 
-func (r *userRepoDb) Delete(ctx context.Context, email string) error {
+func (r *UserRepo) Delete(ctx context.Context, email string) error {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	rowsAffected, err := gorm.G[models.User](conn).Where(db.User.Email.Eq(email)).Delete(ctx)
+	rowsAffected, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
