@@ -7,7 +7,7 @@ import type * as common from "../../../common"
 
 export interface UserListQuery extends common.PaginatedQuery {
     search?: string
-    emails: string[]
+    emails?: string[]
     birthdate?: common.DateRange
 }
 export interface UserCreate {
@@ -20,4 +20,8 @@ export interface UserUpdate {
     name?: string
     password?: string
     birthdate?: string
+}
+export interface PasswordChange {
+    old_password: string
+    new_password: string
 }

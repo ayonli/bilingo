@@ -6,7 +6,7 @@ import "github.com/ayonli/bilingo/common"
 type UserListQuery struct {
 	common.PaginatedQuery `tstype:",extends"`
 	Search                *string           `json:"search" query:"search"`
-	Emails                []string          `json:"emails" query:"emails"`
+	Emails                *[]string         `json:"emails" query:"emails"`
 	Birthdate             *common.DateRange `tstype:"common.DateRange" json:"birthdate" query:"birthdate"`
 }
 
@@ -21,4 +21,9 @@ type UserUpdate struct {
 	Name      *string `json:"name" form:"name"`
 	Password  *string `json:"password" form:"password"`
 	Birthdate *string `json:"birthdate" form:"birthdate"`
+}
+
+type PasswordChange struct {
+	OldPassword string `json:"old_password" form:"old_password"`
+	NewPassword string `json:"new_password" form:"new_password"`
 }

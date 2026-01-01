@@ -11,6 +11,7 @@ import (
 	"github.com/ayonli/bilingo/domains/user/repo/db/tables"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -38,31 +39,33 @@ func (r *UserRepo) GetList(ctx context.Context, query types.UserListQuery) (*com
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	q := gorm.G[models.User](conn).Where("1")
+	q := gorm.G[models.User](conn)
 
-	if query.Search != nil {
+	if query.Search != nil && *query.Search != "" {
 		likePattern := "%" + *query.Search + "%"
-		q = q.Or(
-			tables.User.Name.Like(likePattern),
-			tables.User.Email.Like(likePattern),
+		q.Where(
+			q.Or(
+				tables.User.Name.Like(likePattern),
+				tables.User.Email.Like(likePattern),
+			),
 		)
 	}
 
-	if len(query.Emails) > 0 {
-		q = q.Where(tables.User.Email.In(query.Emails...))
+	if query.Emails != nil && len(*query.Emails) > 0 {
+		q.Where(tables.User.Email.In(*query.Emails...))
 	}
 
 	if query.Birthdate != nil {
 		if query.Birthdate.Start != nil {
-			q = q.Where(tables.User.Birthdate.Gte(*query.Birthdate.Start))
+			q.Where(tables.User.Birthdate.Gte(*query.Birthdate.Start))
 		}
 		if query.Birthdate.End != nil {
-			q = q.Where(tables.User.Birthdate.Lte(*query.Birthdate.End))
+			q.Where(tables.User.Birthdate.Lte(*query.Birthdate.End))
 		}
 	}
 
-	q = q.Limit(query.PageSize)
-	q = q.Offset(query.PageSize * (query.Page - 1))
+	q.Limit(query.PageSize)
+	q.Offset(query.PageSize * (query.Page - 1))
 	users, err := q.Find(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user list: %w", err)
@@ -84,10 +87,15 @@ func (r *UserRepo) Create(ctx context.Context, user *types.UserCreate) (*models.
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
+	hashedPasswordStr, err := HashPassword(user.Password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
 	newUser := models.User{
 		Email:     user.Email,
 		Name:      user.Name,
-		Password:  &user.Password,
+		Password:  &hashedPasswordStr,
 		Birthdate: user.Birthdate,
 	}
 
@@ -112,7 +120,11 @@ func (r *UserRepo) Update(ctx context.Context, email string, user *types.UserUpd
 		existingUser.Name = *user.Name
 	}
 	if user.Password != nil {
-		existingUser.Password = user.Password
+		hashedPasswordStr, err := HashPassword(*user.Password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to hash password: %w", err)
+		}
+		existingUser.Password = &hashedPasswordStr
 	}
 	if user.Birthdate != nil {
 		existingUser.Birthdate = user.Birthdate
@@ -153,4 +165,18 @@ func (r *UserRepo) Delete(ctx context.Context, email string) error {
 	}
 
 	return nil
+}
+
+// VerifyPassword verifies if the provided password matches the stored hash
+func VerifyPassword(hashedPassword string, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+// HashPassword hashes a plain text password using bcrypt
+func HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }

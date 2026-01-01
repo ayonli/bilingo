@@ -1,7 +1,7 @@
 import type { ApiResult, PaginatedResult } from "../../../common"
 import { ApiEntry } from "../../../client"
 import type { User } from "../models"
-import type { UserListQuery } from "../types"
+import type { PasswordChange, UserListQuery } from "../types"
 
 const userApi = new ApiEntry("/users")
 
@@ -26,4 +26,11 @@ export async function updateUser(
 
 export async function deleteUser(email: string): ApiResult<null> {
     return await userApi.delete(`/${email}`)
+}
+
+export async function changePassword(
+    email: string,
+    data: PasswordChange,
+): ApiResult<null> {
+    return await userApi.patch(`/${email}/password`, null, data)
 }

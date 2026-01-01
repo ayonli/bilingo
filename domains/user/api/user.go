@@ -18,6 +18,7 @@ func init() {
 	UserApi.Get("/", listUsers)
 	UserApi.Post("/", createUser)
 	UserApi.Patch("/:email", updateUser)
+	UserApi.Patch("/:email/password", changePassword)
 	UserApi.Delete("/:email", deleteUser)
 }
 
@@ -84,6 +85,25 @@ func deleteUser(ctx *fiber.Ctx) error {
 
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	return server.Success[any](ctx, nil)
+}
+
+func changePassword(ctx *fiber.Ctx) error {
+	email := ctx.Params("email")
+	var data types.PasswordChange
+	if err := ctx.BodyParser(&data); err != nil {
+		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
+	}
+
+	err := service.ChangePassword(ctx.Context(), email, &data)
+	if errors.Is(err, domain.ErrUserNotFound) {
+		return server.Error(ctx, 404, domain.ErrUserNotFound)
+	} else if errors.Is(err, domain.ErrInvalidPassword) {
+		return server.Error(ctx, 401, domain.ErrInvalidPassword)
 	} else if err != nil {
 		return server.Error(ctx, 500, err)
 	}

@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	ErrUserNotFound   = e.New("user not found")
-	ErrAuthorNotFound = e.New("author not found")
-	ErrNotAnEmail     = e.New("not an email")
+	ErrUserNotFound    = e.New("user not found")
+	ErrAuthorNotFound  = e.New("author not found")
+	ErrNotAnEmail      = e.New("not an email")
+	ErrInvalidPassword = e.New("invalid password")
 )
