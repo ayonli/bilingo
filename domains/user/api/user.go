@@ -14,9 +14,15 @@ import (
 var UserApi = server.NewApiEntry("/users")
 
 func init() {
-	UserApi.Get("/:email", getUser)
+	// Authentication routes (must come before /:email to avoid conflicts)
+	UserApi.Post("/login", login)
+	UserApi.Post("/logout", logout)
+	UserApi.Get("/me", getMe)
+
+	// User CRUD routes
 	UserApi.Get("/", listUsers)
 	UserApi.Post("/", createUser)
+	UserApi.Get("/:email", getUser)
 	UserApi.Patch("/:email", updateUser)
 	UserApi.Patch("/:email/password", changePassword)
 	UserApi.Delete("/:email", deleteUser)
@@ -109,4 +115,64 @@ func changePassword(ctx *fiber.Ctx) error {
 	}
 
 	return server.Success[any](ctx, nil)
+}
+
+func login(ctx *fiber.Ctx) error {
+	var credentials types.LoginCredentials
+	if err := ctx.BodyParser(&credentials); err != nil {
+		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
+	}
+
+	user, err := service.Login(ctx.Context(), &credentials)
+	if errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrInvalidPassword) {
+		return server.Error(ctx, 401, fmt.Errorf("invalid email or password"))
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	// Generate JWT token
+	token, err := server.GenerateToken(user.Email)
+	if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	// Set cookie with token
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		HTTPOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: "Lax",
+		MaxAge:   86400 * 7, // 7 days
+	})
+
+	return server.Success(ctx, user)
+}
+
+func logout(ctx *fiber.Ctx) error {
+	// Clear the auth cookie
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		HTTPOnly: true,
+		MaxAge:   -1,
+	})
+
+	return server.Success[any](ctx, nil)
+}
+
+func getMe(ctx *fiber.Ctx) error {
+	email, ok := server.GetUserEmail(ctx.Context())
+	if !ok {
+		return server.Error(ctx, 401, fmt.Errorf("not logged in"))
+	}
+
+	user, err := service.GetUser(ctx.Context(), email)
+	if errors.Is(err, domain.ErrUserNotFound) {
+		return server.Error(ctx, 404, domain.ErrUserNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	return server.Success(ctx, user)
 }

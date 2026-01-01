@@ -66,3 +66,22 @@ func ChangePassword(ctx context.Context, email string, data *types.PasswordChang
 	_, err = repo.UserRepo.Update(ctx, email, updateData)
 	return err
 }
+
+func Login(ctx context.Context, credentials *types.LoginCredentials) (*models.User, error) {
+	user, err := repo.UserRepo.FindByEmail(ctx, credentials.Email)
+	if err != nil {
+		return nil, err
+	} else if user == nil {
+		return nil, domain.ErrUserNotFound
+	}
+
+	// Verify password
+	if user.Password == nil {
+		return nil, domain.ErrInvalidPassword
+	}
+	if err := db.VerifyPassword(*user.Password, credentials.Password); err != nil {
+		return nil, domain.ErrInvalidPassword
+	}
+
+	return user, nil
+}

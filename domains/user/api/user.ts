@@ -1,9 +1,21 @@
 import type { ApiResult, PaginatedResult } from "../../../common"
 import { ApiEntry } from "../../../client"
 import type { User } from "../models"
-import type { PasswordChange, UserListQuery } from "../types"
+import type { LoginCredentials, PasswordChange, UserListQuery } from "../types"
 
 const userApi = new ApiEntry("/users")
+
+export async function login(credentials: LoginCredentials): ApiResult<User> {
+    return await userApi.post("/login", null, credentials)
+}
+
+export async function logout(): ApiResult<null> {
+    return await userApi.post("/logout")
+}
+
+export async function getMe(): ApiResult<User> {
+    return await userApi.get("/me")
+}
 
 export async function getUser(email: string): ApiResult<User> {
     return await userApi.get(`/${email}`)

@@ -6,7 +6,6 @@
 export interface ArticleCreate {
     title: string
     content: string
-    author: string
     category?: string
     tags?: string
 }

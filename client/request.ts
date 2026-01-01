@@ -37,20 +37,28 @@ export async function request<T>(
         method,
         headers,
         body,
+        credentials: "include", // Include cookies in requests
     })
+    const contentType = response.headers.get("Content-Type") || ""
 
-    const { ok, value: result, error } = await try_<ApiResponse<T>, Error>(response.json())
+    if (contentType.includes("/json")) {
+        const { ok, value: result, error } = await try_<ApiResponse<T>, Error>(response.json())
 
-    if (ok) {
-        if (result.success) {
-            return Ok((result.data ?? null) as T)
+        if (ok) {
+            if (result.success) {
+                return Ok((result.data ?? null) as T)
+            } else {
+                return Err(result.message || "Unknown error")
+            }
+        } else if (!response.ok) {
+            return Err(`HTTP ${response.status}: ${response.statusText}`)
         } else {
-            return Err(result.message || "Unknown error")
+            return Err(error.message)
         }
     } else if (!response.ok) {
         return Err(`HTTP ${response.status}: ${response.statusText}`)
     } else {
-        return Err(error.message)
+        return Err("Unsupported response content type: " + contentType)
     }
 }
 

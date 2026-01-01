@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import type { Article } from "../models"
 import type { ArticleListQuery } from "../types"
 import { listArticles } from "../api/article.ts"
+import { alert } from "@ayonli/jsext/dialog"
 
 export default function ArticleIndex(): JSX.Element {
     const navigate = useNavigate()
@@ -40,7 +41,7 @@ export default function ArticleIndex(): JSX.Element {
                 setArticles(result.value.list)
                 setTotal(result.value.total)
             } else {
-                alert("加载文章失败: " + result.error)
+                await alert("加载文章失败: " + result.error)
             }
         } finally {
             setLoading(false)

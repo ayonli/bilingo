@@ -16,7 +16,7 @@ import (
 
 type ArticleRepo struct{}
 
-func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate) (*models.Article, error) {
+func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
@@ -25,7 +25,7 @@ func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate) (*m
 	article := &models.Article{
 		Title:    data.Title,
 		Content:  data.Content,
-		Author:   data.Author,
+		Author:   author,
 		Category: data.Category,
 		Tags:     data.Tags,
 		Likes:    0,

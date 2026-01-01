@@ -6,12 +6,18 @@ import remarkGfm from "remark-gfm"
 import type { Article } from "../models"
 import type { ArticleUpdate } from "../types"
 import { deleteArticle, getArticle, likeArticle, updateArticle } from "../api/article.ts"
+import { useAuth } from "../../../client/contexts/AuthContext.tsx"
+import { alert, confirm } from "@ayonli/jsext/dialog"
+import type { User } from "../../user/models"
+import { getUser } from "../../user/api/user.ts"
 
 export default function ArticleDetail(): JSX.Element {
     const { id } = useParams<{ id: string }>()
     const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
+    const { currentUser } = useAuth()
     const [article, setArticle] = useState<Article | null>(null)
+    const [authorUser, setAuthorUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
     const [editMode, setEditMode] = useState(searchParams.get("edit") === "true")
     const [title, setTitle] = useState("")
@@ -19,6 +25,9 @@ export default function ArticleDetail(): JSX.Element {
     const [category, setCategory] = useState("")
     const [tags, setTags] = useState("")
     const [saving, setSaving] = useState(false)
+
+    // Check if current user is the author
+    const isAuthor = currentUser && article && currentUser.email === article.author
 
     async function loadArticle(): Promise<void> {
         if (!id) { return }
@@ -32,8 +41,14 @@ export default function ArticleDetail(): JSX.Element {
                 setContent(result.value.content)
                 setCategory(result.value.category || "")
                 setTags(result.value.tags || "")
+
+                // Load author user info
+                const authorResult = await getUser(result.value.author)
+                if (authorResult.ok) {
+                    setAuthorUser(authorResult.value)
+                }
             } else {
-                alert("加载文章失败: " + result.error)
+                await alert("加载文章失败: " + result.error)
             }
         } finally {
             setLoading(false)
@@ -62,12 +77,12 @@ export default function ArticleDetail(): JSX.Element {
 
             const result = await updateArticle(Number(id), data)
             if (result.ok) {
-                alert("保存成功")
+                await alert("保存成功")
                 setEditMode(false)
                 setSearchParams({})
                 loadArticle()
             } else {
-                alert("保存失败: " + result.error)
+                await alert("保存失败: " + result.error)
             }
         } finally {
             setSaving(false)
@@ -76,18 +91,18 @@ export default function ArticleDetail(): JSX.Element {
 
     async function handleDelete(): Promise<void> {
         if (!id) { return }
-        if (!confirm("确定要删除这篇文章吗？")) { return }
+        if (!await confirm("确定要删除这篇文章吗？")) { return }
 
         try {
             const result = await deleteArticle(Number(id))
             if (result.ok) {
-                alert("删除成功")
+                await alert("删除成功")
                 navigate("/articles")
             } else {
-                alert("删除失败: " + result.error)
+                await alert("删除失败: " + result.error)
             }
         } catch {
-            alert("删除失败")
+            await alert("删除失败")
         }
     }
 
@@ -99,10 +114,10 @@ export default function ArticleDetail(): JSX.Element {
             if (result.ok) {
                 loadArticle()
             } else {
-                alert("操作失败: " + result.error)
+                await alert("操作失败: " + result.error)
             }
         } catch {
-            alert("操作失败")
+            await alert("操作失败")
         }
     }
 
@@ -147,6 +162,39 @@ export default function ArticleDetail(): JSX.Element {
     }
 
     if (editMode) {
+        // Check if user is logged in and is the author
+        if (!currentUser) {
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white shadow rounded-lg p-12 text-center">
+                        <p className="text-gray-500 text-lg mb-4">请先登录</p>
+                        <Link
+                            to="/articles"
+                            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                        >
+                            返回列表
+                        </Link>
+                    </div>
+                </div>
+            )
+        }
+
+        if (!isAuthor) {
+            return (
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white shadow rounded-lg p-12 text-center">
+                        <p className="text-gray-500 text-lg mb-4">您没有权限编辑此文章</p>
+                        <Link
+                            to={`/articles/${id}`}
+                            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                        >
+                            返回文章
+                        </Link>
+                    </div>
+                </div>
+            )
+        }
+
         return (
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
@@ -263,7 +311,16 @@ export default function ArticleDetail(): JSX.Element {
                     </h1>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                         <span>
-                            作者: <strong>{article.author}</strong>
+                            作者: {authorUser
+                                ? (
+                                    <Link
+                                        to={`/users/${encodeURIComponent(authorUser.email)}`}
+                                        className="font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                    >
+                                        {authorUser.name} &lt;{authorUser.email}&gt;
+                                    </Link>
+                                )
+                                : <strong>{article.author}</strong>}
                         </span>
                         <span>发布: {formatDate(article.created_at)}</span>
                         <span>更新: {formatDate(article.updated_at)}</span>
@@ -311,23 +368,27 @@ export default function ArticleDetail(): JSX.Element {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEditMode(true)
-                                    setSearchParams({ edit: "true" })
-                                }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                            >
-                                编辑
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleDelete}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                            >
-                                删除
-                            </button>
+                            {isAuthor && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEditMode(true)
+                                            setSearchParams({ edit: "true" })
+                                        }}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        编辑
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleDelete}
+                                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                    >
+                                        删除
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </footer>

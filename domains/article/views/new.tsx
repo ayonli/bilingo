@@ -3,12 +3,12 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import type { ArticleCreate } from "../types"
 import { createArticle } from "../api/article.ts"
+import { alert } from "@ayonli/jsext/dialog"
 
 export default function ArticleNew(): JSX.Element {
     const navigate = useNavigate()
     const [title, setTitle] = useState("")
     const [content, setContent] = useState("")
-    const [author, setAuthor] = useState("")
     const [category, setCategory] = useState("")
     const [tags, setTags] = useState("")
     const [saving, setSaving] = useState(false)
@@ -21,17 +21,16 @@ export default function ArticleNew(): JSX.Element {
             const data: ArticleCreate = {
                 title: title.trim(),
                 content: content.trim(),
-                author: author.trim(),
                 category: category.trim() || undefined,
                 tags: tags.trim() || undefined,
             }
 
             const result = await createArticle(data)
             if (result.ok) {
-                alert("创建成功")
+                await alert("创建成功")
                 navigate("/articles/" + result.value.id)
             } else {
-                alert("创建失败: " + result.error)
+                await alert("创建失败: " + result.error)
             }
         } finally {
             setSaving(false)
@@ -60,19 +59,6 @@ export default function ArticleNew(): JSX.Element {
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            作者 *
-                        </label>
-                        <input
-                            type="text"
-                            value={author}
-                            onChange={(e) => setAuthor(e.target.value)}
                             required
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />

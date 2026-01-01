@@ -16,21 +16,27 @@ import (
 var ArticleApi = server.NewApiEntry("/articles")
 
 func init() {
-	ArticleApi.Post("/", createArticle)
+	ArticleApi.Post("/", server.RequireAuth, createArticle)
 	ArticleApi.Get("/", listArticles)
 	ArticleApi.Get("/:id", getArticle)
-	ArticleApi.Patch("/:id", updateArticle)
-	ArticleApi.Delete("/:id", deleteArticle)
+	ArticleApi.Patch("/:id", server.RequireAuth, updateArticle)
+	ArticleApi.Delete("/:id", server.RequireAuth, deleteArticle)
 	ArticleApi.Post("/:id/like", likeArticle)
 }
 
 func createArticle(ctx *fiber.Ctx) error {
+	// Get authenticated user email
+	email, ok := server.GetUserEmail(ctx.Context())
+	if !ok {
+		return server.Error(ctx, 401, fmt.Errorf("authentication required"))
+	}
+
 	var data types.ArticleCreate
 	if err := ctx.BodyParser(&data); err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
 	}
 
-	article, err := service.CreateArticle(ctx.Context(), &data)
+	article, err := service.CreateArticle(ctx.Context(), &data, email)
 	if err != nil {
 		return server.Error(ctx, 500, err)
 	}
@@ -69,9 +75,27 @@ func listArticles(ctx *fiber.Ctx) error {
 }
 
 func updateArticle(ctx *fiber.Ctx) error {
+	// Get authenticated user email
+	email, ok := server.GetUserEmail(ctx.Context())
+	if !ok {
+		return server.Error(ctx, 401, fmt.Errorf("authentication required"))
+	}
+
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 	if err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
+	}
+
+	// Check if user is the author
+	article, err := service.GetArticle(ctx.Context(), uint(id))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return server.Error(ctx, 404, domain.ErrArticleNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	if article.Author != email {
+		return server.Error(ctx, 403, domain.ErrUnauthorized)
 	}
 
 	var data types.ArticleUpdate
@@ -90,9 +114,27 @@ func updateArticle(ctx *fiber.Ctx) error {
 }
 
 func deleteArticle(ctx *fiber.Ctx) error {
+	// Get authenticated user email
+	email, ok := server.GetUserEmail(ctx.Context())
+	if !ok {
+		return server.Error(ctx, 401, fmt.Errorf("authentication required"))
+	}
+
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 	if err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
+	}
+
+	// Check if user is the author
+	article, err := service.GetArticle(ctx.Context(), uint(id))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return server.Error(ctx, 404, domain.ErrArticleNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	if article.Author != email {
+		return server.Error(ctx, 403, domain.ErrUnauthorized)
 	}
 
 	if err := service.DeleteArticle(ctx.Context(), uint(id)); err != nil {

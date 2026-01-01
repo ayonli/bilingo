@@ -12,7 +12,7 @@ import (
 var ArticleRepo IArticleRepo = &impl.ArticleRepo{}
 
 type IArticleRepo interface {
-	Create(ctx context.Context, data *types.ArticleCreate) (*models.Article, error)
+	Create(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error)
 	FindByID(ctx context.Context, id uint) (*models.Article, error)
 	List(ctx context.Context, query *types.ArticleListQuery) (*common.PaginatedResult[models.Article], error)
 	Update(ctx context.Context, id uint, updates *types.ArticleUpdate) error

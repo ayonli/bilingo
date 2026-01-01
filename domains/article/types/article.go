@@ -5,7 +5,6 @@ import "github.com/ayonli/bilingo/common"
 type ArticleCreate struct {
 	Title    string  `json:"title" validate:"required,min=1,max=200"`
 	Content  string  `json:"content" validate:"required,min=1"`
-	Author   string  `json:"author" validate:"required,email"`
 	Category *string `json:"category" validate:"omitempty,max=64"`
 	Tags     *string `json:"tags" validate:"omitempty"`
 }

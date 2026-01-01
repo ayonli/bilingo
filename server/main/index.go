@@ -12,6 +12,9 @@ func main() {
 		Immutable: true,
 	})
 
+	// Apply auth middleware to all API routes
+	server.Api.Use(server.AuthMiddleware)
+
 	app.Mount("/api", server.Api)
 
 	err := app.Listen(":8090")

@@ -10,8 +10,8 @@ import (
 	"github.com/ayonli/bilingo/domains/article/types"
 )
 
-func CreateArticle(ctx context.Context, data *types.ArticleCreate) (*models.Article, error) {
-	return repo.ArticleRepo.Create(ctx, data)
+func CreateArticle(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error) {
+	return repo.ArticleRepo.Create(ctx, data, author)
 }
 
 func GetArticle(ctx context.Context, id uint) (*models.Article, error) {

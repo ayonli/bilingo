@@ -25,3 +25,7 @@ export interface PasswordChange {
     old_password: string
     new_password: string
 }
+export interface LoginCredentials {
+    email: string
+    password: string
+}
