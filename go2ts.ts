@@ -1,4 +1,3 @@
-import once from "@ayonli/jsext/once"
 import {
     ControlKeys,
     ControlSequences,
@@ -12,15 +11,7 @@ import { watch } from "chokidar"
 import process from "node:process"
 import { isMain } from "@ayonli/jsext/module"
 import { try_ } from "@ayonli/jsext/result"
-
-const getGoModName: () => Promise<string> = once(async () => {
-    const content = await readFileAsText("go.mod")
-    const match = content.match(/^module\s+([^\s]+)/m)
-    if (!match) {
-        throw new Error("Could not find module name in go.mod")
-    }
-    return match[1]
-})
+import { getGoModName } from "./utils/mod"
 
 interface Lang2TSConfig {
     paths: string[]

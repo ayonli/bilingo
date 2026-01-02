@@ -11,38 +11,17 @@ import (
 	"github.com/ayonli/bilingo/server"
 	"github.com/ayonli/bilingo/server/auth"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 var ArticleApi = server.NewApiEntry("/articles", auth.UseAuth)
 
 func init() {
-	ArticleApi.Post("/", auth.RequireAuth, createArticle)
 	ArticleApi.Get("/", listArticles)
 	ArticleApi.Get("/:id", getArticle)
+	ArticleApi.Post("/", auth.RequireAuth, createArticle)
 	ArticleApi.Patch("/:id", auth.RequireAuth, updateArticle)
 	ArticleApi.Delete("/:id", auth.RequireAuth, deleteArticle)
 	ArticleApi.Post("/:id/like", auth.RequireAuth, likeArticle)
-}
-
-func createArticle(ctx *fiber.Ctx) error {
-	// Get authenticated user
-	user, ok := auth.GetUser(ctx.UserContext())
-	if !ok {
-		return server.Error(ctx, 401, auth.ErrUnauthorized)
-	}
-
-	var data types.ArticleCreate
-	if err := ctx.BodyParser(&data); err != nil {
-		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
-	}
-
-	article, err := service.CreateArticle(ctx.UserContext(), &data, user.Email)
-	if err != nil {
-		return server.Error(ctx, 500, err)
-	}
-
-	return server.Success(ctx, article)
 }
 
 func getArticle(ctx *fiber.Ctx) error {
@@ -52,7 +31,7 @@ func getArticle(ctx *fiber.Ctx) error {
 	}
 
 	article, err := service.GetArticle(ctx.UserContext(), uint(id))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, domain.ErrArticleNotFound) {
 		return server.Error(ctx, 404, domain.ErrArticleNotFound)
 	} else if err != nil {
 		return server.Error(ctx, 500, err)
@@ -75,6 +54,26 @@ func listArticles(ctx *fiber.Ctx) error {
 	return server.Success(ctx, result)
 }
 
+func createArticle(ctx *fiber.Ctx) error {
+	// Get authenticated user
+	user, ok := auth.GetUser(ctx.UserContext())
+	if !ok {
+		return server.Error(ctx, 401, auth.ErrUnauthorized)
+	}
+
+	var data types.ArticleCreate
+	if err := ctx.BodyParser(&data); err != nil {
+		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
+	}
+
+	article, err := service.CreateArticle(ctx.UserContext(), &data, user.Email)
+	if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	return server.Success(ctx, article)
+}
+
 func updateArticle(ctx *fiber.Ctx) error {
 	// Get authenticated user
 	user, ok := auth.GetUser(ctx.UserContext())
@@ -87,14 +86,14 @@ func updateArticle(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
 	}
 
-	// Check if user is the author
 	article, err := service.GetArticle(ctx.UserContext(), uint(id))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, domain.ErrArticleNotFound) {
 		return server.Error(ctx, 404, domain.ErrArticleNotFound)
 	} else if err != nil {
 		return server.Error(ctx, 500, err)
 	}
 
+	// Check if user is the author
 	if article.Author != user.Email {
 		return server.Error(ctx, 403, domain.ErrUnauthorized)
 	}
@@ -104,14 +103,15 @@ func updateArticle(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
 	}
 
-	if err := service.UpdateArticle(ctx.UserContext(), uint(id), &data); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	article, err = service.UpdateArticle(ctx.UserContext(), uint(id), &data)
+	if err != nil {
+		if errors.Is(err, domain.ErrArticleNotFound) {
 			return server.Error(ctx, 404, domain.ErrArticleNotFound)
 		}
 		return server.Error(ctx, 500, err)
 	}
 
-	return server.Success[any](ctx, nil)
+	return server.Success(ctx, article)
 }
 
 func deleteArticle(ctx *fiber.Ctx) error {
@@ -125,20 +125,20 @@ func deleteArticle(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
 	}
 
-	// Check if user is the author
 	article, err := service.GetArticle(ctx.UserContext(), uint(id))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, domain.ErrArticleNotFound) {
 		return server.Error(ctx, 404, domain.ErrArticleNotFound)
 	} else if err != nil {
 		return server.Error(ctx, 500, err)
 	}
 
+	// Check if user is the author
 	if article.Author != user.Email {
 		return server.Error(ctx, 403, domain.ErrUnauthorized)
 	}
 
 	if err := service.DeleteArticle(ctx.UserContext(), uint(id)); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, domain.ErrArticleNotFound) {
 			return server.Error(ctx, 404, domain.ErrArticleNotFound)
 		}
 		return server.Error(ctx, 500, err)
@@ -158,12 +158,13 @@ func likeArticle(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
 	}
 
-	if err := service.LikeArticle(ctx.UserContext(), uint(id), data.Action); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	article, err := service.LikeArticle(ctx.UserContext(), uint(id), data.Action)
+	if err != nil {
+		if errors.Is(err, domain.ErrArticleNotFound) {
 			return server.Error(ctx, 404, domain.ErrArticleNotFound)
 		}
 		return server.Error(ctx, 500, err)
 	}
 
-	return server.Success[any](ctx, nil)
+	return server.Success[any](ctx, article)
 }

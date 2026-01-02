@@ -11,6 +11,7 @@
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",
         "sanitize:ts": "deno lint --fix  && deno fmt && tsc --noEmit",
+        "new": "tsx cmd/new-domain.ts",
         "go2ts": "tsx go2ts.ts"
     },
     "dependencies": {
@@ -19,6 +20,7 @@
         "@tailwindcss/typography": "^0.5.19",
         "@vitejs/plugin-react": "^5.1.0",
         "chokidar": "^4.0.3",
+        "pluralize": "^8.0.0",
         "qs": "^6.14.1",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
@@ -30,6 +32,7 @@
     },
     "devDependencies": {
         "@types/node": "^24.2.0",
+        "@types/pluralize": "^0.0.33",
         "@types/qs": "^6.14.0",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.2",

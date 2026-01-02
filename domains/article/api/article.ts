@@ -5,14 +5,8 @@ import type { ArticleCreate, ArticleListQuery, ArticleUpdate } from "../types"
 
 const articleApi = new ApiEntry("/articles")
 
-export async function createArticle(
-    data: ArticleCreate,
-): ApiResult<Article> {
-    return await articleApi.post("/", null, data)
-}
-
 export async function getArticle(id: number): ApiResult<Article> {
-    return await articleApi.get(`/${id}`)
+    return await articleApi.get("/" + id)
 }
 
 export async function listArticles(
@@ -21,20 +15,21 @@ export async function listArticles(
     return await articleApi.get("/", query)
 }
 
-export async function updateArticle(
-    id: number,
-    data: ArticleUpdate,
-): ApiResult<null> {
-    return await articleApi.patch(`/${id}`, null, data)
+export async function createArticle(data: ArticleCreate): ApiResult<Article> {
+    return await articleApi.post("/", null, data)
+}
+
+export async function updateArticle(id: number, data: ArticleUpdate): ApiResult<null> {
+    return await articleApi.patch("/" + id, null, data)
 }
 
 export async function deleteArticle(id: number): ApiResult<null> {
-    return await articleApi.delete(`/${id}`)
+    return await articleApi.delete("/" + id)
 }
 
 export async function likeArticle(
     id: number,
-    action: string,
-): ApiResult<null> {
+    action: "like" | "unlike" | "dislike" | "undislike",
+): ApiResult<Article> {
     return await articleApi.post(`/${id}/like`, null, { action })
 }

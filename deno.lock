@@ -5,6 +5,7 @@
     "npm:@ayonli/react-hooks@~0.1.9": "0.1.9_react@18.3.1",
     "npm:@tailwindcss/typography@~0.5.19": "0.5.19_tailwindcss@3.4.19__postcss@8.5.6__jiti@1.21.7__tsx@4.20.6_tsx@4.20.6",
     "npm:@types/node@^24.2.0": "24.10.1",
+    "npm:@types/pluralize@^0.0.33": "0.0.33",
     "npm:@types/qs@^6.14.0": "6.14.0",
     "npm:@types/react-dom@^19.2.2": "19.2.3_@types+react@19.2.6",
     "npm:@types/react@^19.2.2": "19.2.6",
@@ -12,6 +13,7 @@
     "npm:autoprefixer@^10.4.20": "10.4.23_postcss@8.5.6",
     "npm:chokidar@^4.0.3": "4.0.3",
     "npm:json-schema-to-typescript@^15.0.4": "15.0.4",
+    "npm:pluralize@8": "8.0.0",
     "npm:postcss@^8.4.49": "8.5.6",
     "npm:qs@^6.14.1": "6.14.1",
     "npm:react-dom@^19.2.0": "19.2.0_react@19.2.0",
@@ -565,6 +567,9 @@
       "dependencies": [
         "undici-types"
       ]
+    },
+    "@types/pluralize@0.0.33": {
+      "integrity": "sha512-JOqsl+ZoCpP4e8TDke9W79FDcSgPAR0l6pixx2JHkhnRjvShyYiAYw2LVsnA7K08Y6DeOnaU6ujmENO4os/cYg=="
     },
     "@types/qs@6.14.0": {
       "integrity": "sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ=="
@@ -1624,6 +1629,9 @@
         "pathe"
       ]
     },
+    "pluralize@8.0.0": {
+      "integrity": "sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA=="
+    },
     "postcss-import@15.1.0_postcss@8.5.6": {
       "integrity": "sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==",
       "dependencies": [
@@ -2234,6 +2242,7 @@
         "npm:@ayonli/react-hooks@~0.1.9",
         "npm:@tailwindcss/typography@~0.5.19",
         "npm:@types/node@^24.2.0",
+        "npm:@types/pluralize@^0.0.33",
         "npm:@types/qs@^6.14.0",
         "npm:@types/react-dom@^19.2.2",
         "npm:@types/react@^19.2.2",
@@ -2241,6 +2250,7 @@
         "npm:autoprefixer@^10.4.20",
         "npm:chokidar@^4.0.3",
         "npm:json-schema-to-typescript@^15.0.4",
+        "npm:pluralize@8",
         "npm:postcss@^8.4.49",
         "npm:qs@^6.14.1",
         "npm:react-dom@^19.2.0",

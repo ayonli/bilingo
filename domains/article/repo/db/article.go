@@ -16,30 +16,7 @@ import (
 
 type ArticleRepo struct{}
 
-func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error) {
-	conn, err := server.UseDefaultDb()
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
-	}
-
-	article := &models.Article{
-		Title:    data.Title,
-		Content:  data.Content,
-		Author:   author,
-		Category: data.Category,
-		Tags:     data.Tags,
-		Likes:    0,
-		Dislikes: 0,
-	}
-
-	if err := gorm.G[models.Article](conn).Create(ctx, article); err != nil {
-		return nil, fmt.Errorf("failed to create article: %w", err)
-	}
-
-	return article, nil
-}
-
-func (r *ArticleRepo) FindByID(ctx context.Context, id uint) (*models.Article, error) {
+func (r *ArticleRepo) Get(ctx context.Context, id uint) (*models.Article, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
@@ -101,41 +78,64 @@ func (r *ArticleRepo) List(ctx context.Context, query *types.ArticleListQuery) (
 	return &common.PaginatedResult[models.Article]{Total: int(total), List: articles}, nil
 }
 
-func (r *ArticleRepo) Update(ctx context.Context, id uint, updates *types.ArticleUpdate) error {
-	existingArticle, err := r.FindByID(ctx, id)
+func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error) {
+	conn, err := server.UseDefaultDb()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to connect database: %w", err)
+	}
+
+	article := &models.Article{
+		Title:    data.Title,
+		Content:  data.Content,
+		Author:   author,
+		Category: data.Category,
+		Tags:     data.Tags,
+		Likes:    0,
+		Dislikes: 0,
+	}
+
+	if err := gorm.G[models.Article](conn).Create(ctx, article); err != nil {
+		return nil, fmt.Errorf("failed to create article: %w", err)
+	}
+
+	return article, nil
+}
+
+func (r *ArticleRepo) Update(ctx context.Context, id uint, updates *types.ArticleUpdate) (*models.Article, error) {
+	article, err := r.Get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
 	if updates.Title != nil {
-		existingArticle.Title = *updates.Title
+		article.Title = *updates.Title
 	}
 	if updates.Content != nil {
-		existingArticle.Content = *updates.Content
+		article.Content = *updates.Content
 	}
 	if updates.Category != nil {
-		existingArticle.Category = updates.Category
+		article.Category = updates.Category
 	}
 	if updates.Tags != nil {
-		existingArticle.Tags = updates.Tags
+		article.Tags = updates.Tags
 	}
 
 	conn, err := server.UseDefaultDb()
 	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
+		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
 	err = conn.Model(&models.Article{}).Where("id = ?", id).Updates(map[string]any{
-		"title":    existingArticle.Title,
-		"content":  existingArticle.Content,
-		"category": existingArticle.Category,
-		"tags":     existingArticle.Tags,
+		"title":    article.Title,
+		"content":  article.Content,
+		"category": article.Category,
+		"tags":     article.Tags,
 	}).Error
 	if err != nil {
-		return fmt.Errorf("failed to update article: %w", err)
+		return nil, fmt.Errorf("failed to update article: %w", err)
 	}
 
-	return nil
+	return r.Get(ctx, id)
 }
 
 func (r *ArticleRepo) Delete(ctx context.Context, id uint) error {
@@ -156,30 +156,30 @@ func (r *ArticleRepo) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (r *ArticleRepo) UpdateLikes(ctx context.Context, id uint, likes int) error {
+func (r *ArticleRepo) UpdateLikes(ctx context.Context, id uint, likes int) (*models.Article, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
+		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
 	err = conn.Model(&models.Article{}).Where("id = ?", id).Update("likes", likes).Error
 	if err != nil {
-		return fmt.Errorf("failed to update likes: %w", err)
+		return nil, fmt.Errorf("failed to update likes: %w", err)
 	}
 
-	return nil
+	return r.Get(ctx, id)
 }
 
-func (r *ArticleRepo) UpdateDislikes(ctx context.Context, id uint, dislikes int) error {
+func (r *ArticleRepo) UpdateDislikes(ctx context.Context, id uint, dislikes int) (*models.Article, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
+		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
 	err = conn.Model(&models.Article{}).Where("id = ?", id).Update("dislikes", dislikes).Error
 	if err != nil {
-		return fmt.Errorf("failed to update dislikes: %w", err)
+		return nil, fmt.Errorf("failed to update dislikes: %w", err)
 	}
 
-	return nil
+	return r.Get(ctx, id)
 }
