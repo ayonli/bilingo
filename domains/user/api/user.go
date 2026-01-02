@@ -82,6 +82,10 @@ func updateUser(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
 	}
 
+	if data.Password != nil {
+		data.Password = nil // Prevent password updates via this endpoint
+	}
+
 	user, err := service.UpdateUser(ctx.UserContext(), email, &data)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)

@@ -8,7 +8,7 @@ import (
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/article"
 	"github.com/ayonli/bilingo/domains/article/models"
-	"github.com/ayonli/bilingo/domains/article/repo/db/tables"
+	"github.com/ayonli/bilingo/domains/article/tables"
 	"github.com/ayonli/bilingo/domains/article/types"
 	"github.com/ayonli/bilingo/server"
 	"gorm.io/gorm"
