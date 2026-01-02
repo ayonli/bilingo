@@ -3,6 +3,8 @@
 //////////
 // source: article.go
 
+import type * as common from "../../../common"
+
 export interface ArticleCreate {
     title: string
     content: string
@@ -15,8 +17,6 @@ export interface ArticleUpdate {
     category?: string
     tags?: string
 }
-import type * as common from "../../../common"
-
 export interface ArticleListQuery extends common.PaginatedQuery {
     search?: string
     author?: string
