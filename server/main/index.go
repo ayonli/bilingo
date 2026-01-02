@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ayonli/bilingo/config"
 	"github.com/ayonli/bilingo/server"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -18,8 +19,9 @@ func init() {
 }
 
 func main() {
+	cfg := config.GetConfig()
 	app := fiber.New(fiber.Config{
-		AppName:   "Bilingo",
+		AppName:   cfg.AppName,
 		Immutable: true,
 	})
 

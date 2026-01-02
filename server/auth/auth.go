@@ -3,21 +3,17 @@ package auth
 import (
 	"context"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/ayonli/bilingo/common"
+	"github.com/ayonli/bilingo/config"
 	"github.com/ayonli/bilingo/domains/user/models"
 	"github.com/ayonli/bilingo/domains/user/repo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 var ErrUnauthorized = errors.New("unauthorized")
-
-var CookieName = "auth_token"
-var Duration = 7 * 24 * time.Hour // 7 days
 var authSecret []byte
 
 type contextKey string
@@ -25,34 +21,20 @@ type contextKey string
 const userContextKey = contextKey("user")
 
 func init() {
-	// Load .env file if it exists (ignore errors if file doesn't exist)
-	_ = godotenv.Load()
-
-	if cookieName := os.Getenv("AUTH_COOKIE_NAME"); cookieName != "" {
-		CookieName = cookieName
+	cfg := config.GetConfig()
+	if cfg.Auth.Secret != "" {
+		authSecret = []byte(cfg.Auth.Secret)
 	}
-
-	authDurationStr := os.Getenv("AUTH_DURATION")
-	if authDurationStr != "" {
-		if duration, err := time.ParseDuration(authDurationStr); err == nil {
-			Duration = duration
-		}
-	}
-
-	secret := os.Getenv("AUTH_SECRET")
-	if secret == "" {
-		secret = "bilingo-secret-key-change-in-production"
-	}
-	authSecret = []byte(secret)
 }
 
 // GenerateToken generates a JWT token for the given email
 func GenerateToken(email string) (string, error) {
 	now := time.Now()
+	cfg := config.GetConfig()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"iat":   now.Unix(),
-		"exp":   now.Add(Duration).Unix(),
+		"exp":   now.Add(cfg.Auth.Duration).Unix(),
 	})
 
 	tokenString, err := token.SignedString(authSecret)
@@ -82,7 +64,8 @@ func UseAuth(ctx *fiber.Ctx) error {
 }
 
 func extractEmailFromToken(ctx *fiber.Ctx) (string, bool) {
-	tokenString := ctx.Cookies(CookieName)
+	cfg := config.GetConfig()
+	tokenString := ctx.Cookies(cfg.Auth.CookieName)
 	if tokenString == "" {
 		return "", false
 	}

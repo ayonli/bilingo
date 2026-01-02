@@ -77,7 +77,7 @@ async function handleFileChange(path: string): Promise<void> {
 }
 
 async function startWatchMode(): Promise<void> {
-    const paths = await getWatchPaths("go2ts")
+    const paths = await getWatchPaths()
     const _watcher = watch(paths, {
         persistent: true,
         awaitWriteFinish: true,

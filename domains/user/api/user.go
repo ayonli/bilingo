@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ayonli/bilingo/config"
 	domain "github.com/ayonli/bilingo/domains/user"
 	"github.com/ayonli/bilingo/domains/user/service"
 	"github.com/ayonli/bilingo/domains/user/types"
@@ -148,14 +149,15 @@ func login(ctx *fiber.Ctx) error {
 	}
 
 	// Set cookie with token
+	cfg := config.GetConfig()
 	ctx.Cookie(&fiber.Cookie{
-		Name:     auth.CookieName,
+		Name:     cfg.Auth.CookieName,
 		Value:    token,
 		Path:     "/",
 		HTTPOnly: true,
 		Secure:   false, // Set to true in production with HTTPS
 		SameSite: "Lax",
-		MaxAge:   int(auth.Duration.Seconds()),
+		MaxAge:   int(cfg.Auth.Duration.Seconds()),
 	})
 
 	return server.Success(ctx, user)
@@ -163,8 +165,9 @@ func login(ctx *fiber.Ctx) error {
 
 func logout(ctx *fiber.Ctx) error {
 	// Clear the auth cookie
+	cfg := config.GetConfig()
 	ctx.Cookie(&fiber.Cookie{
-		Name:     auth.CookieName,
+		Name:     cfg.Auth.CookieName,
 		Value:    "",
 		Path:     "/",
 		HTTPOnly: true,

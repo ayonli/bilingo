@@ -2,10 +2,10 @@ package server
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 
+	"github.com/ayonli/bilingo/config"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -84,17 +84,15 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 }
 
 // UseDefaultDb returns the default database connection.
-// It reads the DB_URL from environment variables or .env file.
 func UseDefaultDb() (*gorm.DB, error) {
 	once.Do(func() {
-		// Try to read DB_URL from environment
-		dbURL := os.Getenv("DB_URL")
-		if dbURL == "" {
-			defaultDb.Error = fmt.Errorf("DB_URL environment variable is not set")
+		cfg := config.GetConfig()
+		if cfg.DBUrl == "" {
+			defaultDb.Error = fmt.Errorf("database URL is not set")
 			return
 		}
 
-		db, err := CreateDbConn(dbURL)
+		db, err := CreateDbConn(cfg.DBUrl)
 		if err != nil {
 			defaultDb.Error = err
 			return
