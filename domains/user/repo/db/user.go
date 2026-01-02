@@ -32,7 +32,7 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*models.User,
 	return &user, nil
 }
 
-func (r *UserRepo) GetList(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
+func (r *UserRepo) List(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)

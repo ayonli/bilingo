@@ -27,7 +27,7 @@ func GetUser(ctx context.Context, email string) (*models.User, error) {
 }
 
 func ListUsers(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
-	result, err := repo.UserRepo.GetList(ctx, query)
+	result, err := repo.UserRepo.List(ctx, query)
 	if err != nil {
 		return nil, err
 	}
