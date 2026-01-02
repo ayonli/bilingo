@@ -1,21 +1,36 @@
 package main
 
 import (
+	"os"
+	"strings"
+
 	"github.com/ayonli/bilingo/server"
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 
 	_ "github.com/ayonli/bilingo/domains/article/api"
 	_ "github.com/ayonli/bilingo/domains/user/api"
 )
 
+func init() {
+	// Load .env file if it exists (ignore errors if file doesn't exist)
+	_ = godotenv.Load()
+}
+
 func main() {
 	app := fiber.New(fiber.Config{
+		AppName:   "Bilingo",
 		Immutable: true,
 	})
 
 	app.Mount("/api", server.Api)
 
-	err := app.Listen(":8090")
+	port := ":8090"
+	if serverUrl := os.Getenv("SERVER_URL"); serverUrl != "" {
+		port = serverUrl[strings.LastIndex(serverUrl, ":"):]
+	}
+
+	err := app.Listen(port)
 	if err != nil {
 		panic(err)
 	}

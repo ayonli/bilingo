@@ -149,13 +149,13 @@ func login(ctx *fiber.Ctx) error {
 
 	// Set cookie with token
 	ctx.Cookie(&fiber.Cookie{
-		Name:     "auth_token",
+		Name:     auth.CookieName,
 		Value:    token,
 		Path:     "/",
 		HTTPOnly: true,
 		Secure:   false, // Set to true in production with HTTPS
 		SameSite: "Lax",
-		MaxAge:   86400 * 7, // 7 days
+		MaxAge:   int(auth.Duration.Seconds()),
 	})
 
 	return server.Success(ctx, user)
@@ -164,7 +164,7 @@ func login(ctx *fiber.Ctx) error {
 func logout(ctx *fiber.Ctx) error {
 	// Clear the auth cookie
 	ctx.Cookie(&fiber.Cookie{
-		Name:     "auth_token",
+		Name:     auth.CookieName,
 		Value:    "",
 		Path:     "/",
 		HTTPOnly: true,

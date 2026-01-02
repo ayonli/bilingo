@@ -7,10 +7,11 @@ import {
     writeStdoutSync,
 } from "@ayonli/jsext/cli"
 import { readFileAsText, remove, writeFile } from "@ayonli/jsext/fs"
-import { dirname } from "@ayonli/jsext/path"
+import { cwd, dirname } from "@ayonli/jsext/path"
 import { watch } from "chokidar"
 import process from "node:process"
-import { getWatchPaths } from "./2ts.ts"
+import { isMain } from "@ayonli/jsext/module"
+import { try_ } from "@ayonli/jsext/result"
 
 const getGoModName: () => Promise<string> = once(async () => {
     const content = await readFileAsText("go.mod")
@@ -21,7 +22,26 @@ const getGoModName: () => Promise<string> = once(async () => {
     return match[1]
 })
 
-async function generate(dir: string): Promise<void> {
+interface Lang2TSConfig {
+    paths: string[]
+}
+
+export async function getWatchPaths(): Promise<string[]> {
+    const { ok, error, value: pkgText } = await try_(readFileAsText(cwd() + "/package.json"))
+    if (!ok) {
+        throw new Error("Failed to read package.json: " + error)
+    }
+
+    const pkg = JSON.parse(pkgText) as Record<string, unknown>
+    const config = pkg["go2ts"] as Lang2TSConfig | undefined
+    if (!config) {
+        throw new Error(`No go2ts configuration found in package.json`)
+    }
+
+    return config.paths
+}
+
+export async function generate(dir: string): Promise<void> {
     const modName = await getGoModName()
     const tempYaml = `
 type_mappings:
@@ -94,4 +114,6 @@ async function main(): Promise<void> {
     }
 }
 
-main()
+if (isMain(import.meta)) {
+    main().catch(console.error)
+}

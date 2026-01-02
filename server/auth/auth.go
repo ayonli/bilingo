@@ -16,21 +16,34 @@ import (
 
 var ErrUnauthorized = errors.New("unauthorized")
 
+var CookieName = "auth_token"
+var Duration = 7 * 24 * time.Hour // 7 days
+var authSecret []byte
+
 type contextKey string
 
 const userContextKey = contextKey("user")
-
-var jwtSecret []byte
 
 func init() {
 	// Load .env file if it exists (ignore errors if file doesn't exist)
 	_ = godotenv.Load()
 
-	secret := os.Getenv("JWT_SECRET")
+	if cookieName := os.Getenv("AUTH_COOKIE_NAME"); cookieName != "" {
+		CookieName = cookieName
+	}
+
+	authDurationStr := os.Getenv("AUTH_DURATION")
+	if authDurationStr != "" {
+		if duration, err := time.ParseDuration(authDurationStr); err == nil {
+			Duration = duration
+		}
+	}
+
+	secret := os.Getenv("AUTH_SECRET")
 	if secret == "" {
 		secret = "bilingo-secret-key-change-in-production"
 	}
-	jwtSecret = []byte(secret)
+	authSecret = []byte(secret)
 }
 
 // GenerateToken generates a JWT token for the given email
@@ -39,10 +52,10 @@ func GenerateToken(email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"iat":   now.Unix(),
-		"exp":   now.Add(7 * 24 * time.Hour).Unix(), // 7 days
+		"exp":   now.Add(Duration).Unix(),
 	})
 
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString(authSecret)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +82,7 @@ func UseAuth(ctx *fiber.Ctx) error {
 }
 
 func extractEmailFromToken(ctx *fiber.Ctx) (string, bool) {
-	tokenString := ctx.Cookies("auth_token")
+	tokenString := ctx.Cookies(CookieName)
 	if tokenString == "" {
 		return "", false
 	}
@@ -78,7 +91,7 @@ func extractEmailFromToken(ctx *fiber.Ctx) (string, bool) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
-		return jwtSecret, nil
+		return authSecret, nil
 	})
 
 	if err != nil || !token.Valid {

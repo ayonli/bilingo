@@ -85,7 +85,6 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 
 // UseDefaultDb returns the default database connection.
 // It reads the DB_URL from environment variables or .env file.
-// If DB_URL is not set, it defaults to SQLite with "gorm.db".
 func UseDefaultDb() (*gorm.DB, error) {
 	once.Do(func() {
 		// Try to read DB_URL from environment

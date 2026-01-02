@@ -6,6 +6,8 @@ embraces a domain-driven design and allow us writing Go and TS code side by side
 ## Requirements
 
 - Go v1.24+ (backend)
+  - Tygo
+  - GORM CLI
 - Node.js v22.0+ (run and build frontend application)
 - Deno v2.5+ (manage frontend dependencies, lint and format TS code)
 

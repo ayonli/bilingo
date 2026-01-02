@@ -5,7 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var Api = fiber.New()
+var Api = fiber.New(fiber.Config{
+	Immutable: true,
+})
 
 func NewApiEntry(path string, handlers ...fiber.Handler) fiber.Router {
 	return Api.Group(path, handlers...)
