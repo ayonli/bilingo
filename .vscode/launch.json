@@ -1,0 +1,64 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Go Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/server/main/index.go",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "Attach to Go Server",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}",
+            "port": 2345,
+            "host": "localhost"
+        },
+        {
+            "name": "Launch Client (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/client",
+            "sourceMaps": true,
+            "preLaunchTask": "Start Vite Dev Server",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${workspaceFolder}/client/*",
+                "webpack:///./*": "${workspaceFolder}/*",
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*"
+            }
+        },
+        {
+            "name": "Launch Client (Edge)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/client",
+            "sourceMaps": true,
+            "preLaunchTask": "Start Vite Dev Server",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${workspaceFolder}/client/*",
+                "webpack:///./*": "${workspaceFolder}/*",
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack",
+            "configurations": ["Launch Go Server", "Launch Client (Chrome)"],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            }
+        }
+    ]
+}
