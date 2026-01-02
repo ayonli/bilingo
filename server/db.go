@@ -23,6 +23,11 @@ var (
 	once      sync.Once
 )
 
+func init() {
+	// Load .env file if it exists (ignore errors if file doesn't exist)
+	_ = godotenv.Load()
+}
+
 // CreateDbConn creates a database connection based on the provided database URL.
 // Supported formats:
 //   - SQLite: sqlite://path/to/database.db or file:path/to/database.db
@@ -83,15 +88,11 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 // If DB_URL is not set, it defaults to SQLite with "gorm.db".
 func UseDefaultDb() (*gorm.DB, error) {
 	once.Do(func() {
-		// Load .env file if it exists (ignore errors if file doesn't exist)
-		_ = godotenv.Load()
-
 		// Try to read DB_URL from environment
 		dbURL := os.Getenv("DB_URL")
-
-		// If not set, default to SQLite
 		if dbURL == "" {
-			dbURL = "sqlite://gorm.db"
+			defaultDb.Error = fmt.Errorf("DB_URL environment variable is not set")
+			return
 		}
 
 		db, err := CreateDbConn(dbURL)

@@ -7,13 +7,8 @@ import (
 
 var Api = fiber.New()
 
-func init() {
-	// Register AuthMiddleware before any routes are registered
-	Api.Use(AuthMiddleware)
-}
-
-func NewApiEntry(path string) fiber.Router {
-	return Api.Group(path)
+func NewApiEntry(path string, handlers ...fiber.Handler) fiber.Router {
+	return Api.Group(path, handlers...)
 }
 
 func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {

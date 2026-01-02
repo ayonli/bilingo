@@ -8,30 +8,31 @@ import (
 	"github.com/ayonli/bilingo/domains/user/service"
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
+	"github.com/ayonli/bilingo/server/auth"
 	"github.com/ayonli/bilingo/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
-var UserApi = server.NewApiEntry("/users")
+var UserApi = server.NewApiEntry("/users", auth.UseAuth)
 
 func init() {
 	// Authentication routes (must come before /:email to avoid conflicts)
 	UserApi.Post("/login", login)
-	UserApi.Post("/logout", logout)
-	UserApi.Get("/me", getMe)
+	UserApi.Post("/logout", auth.RequireAuth, logout)
+	UserApi.Get("/me", auth.RequireAuth, getMe)
 
 	// User CRUD routes
-	UserApi.Get("/", listUsers)
-	UserApi.Post("/", createUser)
-	UserApi.Get("/:email", getUser)
-	UserApi.Patch("/:email", updateUser)
-	UserApi.Patch("/:email/password", changePassword)
-	UserApi.Delete("/:email", deleteUser)
+	UserApi.Get("/", auth.RequireAuth, listUsers)
+	UserApi.Post("/", auth.RequireAuth, createUser)
+	UserApi.Get("/:email", auth.RequireAuth, getUser)
+	UserApi.Patch("/:email", auth.RequireAuth, updateUser)
+	UserApi.Patch("/:email/password", auth.RequireAuth, changePassword)
+	UserApi.Delete("/:email", auth.RequireAuth, deleteUser)
 }
 
 func getUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
-	user, err := service.GetUser(ctx.Context(), email)
+	user, err := service.GetUser(ctx.UserContext(), email)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
 	} else if err != nil {
@@ -52,7 +53,7 @@ func listUsers(ctx *fiber.Ctx) error {
 		query.Emails = &emailList
 	}
 
-	result, err := service.ListUsers(ctx.Context(), query)
+	result, err := service.ListUsers(ctx.UserContext(), query)
 	if err != nil {
 		return server.Error(ctx, 500, err)
 	}
@@ -66,7 +67,7 @@ func createUser(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
 	}
 
-	user, err := service.CreateUser(ctx.Context(), &data)
+	user, err := service.CreateUser(ctx.UserContext(), &data)
 	if err != nil {
 		return server.Error(ctx, 500, err)
 	}
@@ -81,7 +82,7 @@ func updateUser(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
 	}
 
-	user, err := service.UpdateUser(ctx.Context(), email, &data)
+	user, err := service.UpdateUser(ctx.UserContext(), email, &data)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
 	} else if err != nil {
@@ -93,7 +94,7 @@ func updateUser(ctx *fiber.Ctx) error {
 
 func deleteUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
-	err := service.DeleteUser(ctx.Context(), email)
+	err := service.DeleteUser(ctx.UserContext(), email)
 
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
@@ -111,7 +112,7 @@ func changePassword(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
 	}
 
-	err := service.ChangePassword(ctx.Context(), email, &data)
+	err := service.ChangePassword(ctx.UserContext(), email, &data)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
 	} else if errors.Is(err, domain.ErrInvalidPassword) {
@@ -129,7 +130,7 @@ func login(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
 	}
 
-	user, err := service.Login(ctx.Context(), &credentials)
+	user, err := service.Login(ctx.UserContext(), &credentials)
 	if errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrInvalidPassword) {
 		return server.Error(ctx, 401, fmt.Errorf("invalid email or password"))
 	} else if err != nil {
@@ -137,7 +138,7 @@ func login(ctx *fiber.Ctx) error {
 	}
 
 	// Generate JWT token
-	token, err := server.GenerateToken(user.Email)
+	token, err := auth.GenerateToken(user.Email)
 	if err != nil {
 		return server.Error(ctx, 500, err)
 	}
@@ -146,6 +147,7 @@ func login(ctx *fiber.Ctx) error {
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "auth_token",
 		Value:    token,
+		Path:     "/",
 		HTTPOnly: true,
 		Secure:   false, // Set to true in production with HTTPS
 		SameSite: "Lax",
@@ -160,6 +162,7 @@ func logout(ctx *fiber.Ctx) error {
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "auth_token",
 		Value:    "",
+		Path:     "/",
 		HTTPOnly: true,
 		MaxAge:   -1,
 	})
@@ -168,21 +171,9 @@ func logout(ctx *fiber.Ctx) error {
 }
 
 func getMe(ctx *fiber.Ctx) error {
-	emailInterface := ctx.Locals(string(server.UserEmailKey))
-	if emailInterface == nil {
-		return server.Error(ctx, 401, fmt.Errorf("not logged in: email not found in context"))
-	}
-
-	email, ok := emailInterface.(string)
-	if !ok || email == "" {
-		return server.Error(ctx, 401, fmt.Errorf("not logged in: email is empty or invalid type"))
-	}
-
-	user, err := service.GetUser(ctx.Context(), email)
-	if errors.Is(err, domain.ErrUserNotFound) {
-		return server.Error(ctx, 404, domain.ErrUserNotFound)
-	} else if err != nil {
-		return server.Error(ctx, 500, err)
+	user, ok := auth.GetUser(ctx.UserContext())
+	if !ok {
+		return server.Error(ctx, 401, fmt.Errorf("user not logged in"))
 	}
 
 	return server.Success(ctx, user)
