@@ -10,7 +10,7 @@ import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
 import type { User } from "@/domains/user/models"
 import { getUser } from "@/domains/user/api/user.ts"
-import { CommentSection } from "@/domains/comment/views"
+import { CommentAndLogSection } from "@/domains/comment/views"
 
 export default function ArticleDetail(): JSX.Element {
     const { id } = useParams<{ id: string }>()
@@ -398,7 +398,7 @@ export default function ArticleDetail(): JSX.Element {
 
             {/* Comments Section */}
             <div className="bg-white shadow rounded-lg p-8 mt-6">
-                <CommentSection objectType="article" objectId={id || ""} />
+                <CommentAndLogSection objectType="article" objectId={id || ""} />
             </div>
         </div>
     )

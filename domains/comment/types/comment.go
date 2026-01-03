@@ -18,7 +18,7 @@ type CommentUpdate struct {
 type CommentListQuery struct {
 	common.PaginatedQuery `tstype:",extends"`
 	ObjectType            string  `json:"object_type" query:"object_type" validate:"required"`
-	ObjectId              string  `json:"object_id" query:"object_id" validate:"required,max=255"`
+	ObjectId              string  `json:"object_id" query:"object_id" validate:"required,max=64"`
 	Author                *string `json:"author" query:"author"`
 	ParentId              *uint   `json:"parent_id" query:"parent_id"`
 }

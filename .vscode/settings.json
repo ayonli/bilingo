@@ -6,6 +6,8 @@
         "godotenv",
         "gofiber",
         "gorm",
+        "oplog",
+        "oplogs",
         "tstype",
         "varchar"
     ],

@@ -251,7 +251,7 @@ export default function CommentSection({ objectType, objectId }: CommentSectionP
     const topLevelComments = getCommentsByParent()
 
     return (
-        <div className="mt-8 border-t pt-8">
+        <>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 评论 ({comments.length})
             </h2>
@@ -331,6 +331,6 @@ export default function CommentSection({ objectType, objectId }: CommentSectionP
                         {topLevelComments.map((comment) => renderComment(comment))}
                     </div>
                 )}
-        </div>
+        </>
     )
 }

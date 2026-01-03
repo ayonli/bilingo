@@ -12,8 +12,8 @@ var Api = fiber.New(fiber.Config{
 
 func NewApiEntry(path string, handlers ...fiber.Handler) fiber.Router {
 	// Prepend timing.UseTiming middleware to all handlers
-	allHandlers := make([]fiber.Handler, 0, len(handlers)+1)
-	allHandlers = append(allHandlers, timing.UseTiming)
+	allHandlers := make([]fiber.Handler, 0, len(handlers)+2)
+	allHandlers = append(allHandlers, ipMiddleware, timing.UseTiming)
 	allHandlers = append(allHandlers, handlers...)
 
 	return Api.Group(path, allHandlers...)
