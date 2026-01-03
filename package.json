@@ -48,7 +48,6 @@
     },
     "go2ts": {
         "paths": [
-            "./common",
             "./domains/article/models",
             "./domains/article/types",
             "./domains/user/models",

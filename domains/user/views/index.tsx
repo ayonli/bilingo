@@ -44,13 +44,13 @@ export default function UserIndexPage(): JSX.Element {
                 : undefined,
         }
 
-        const { ok, value, error: apiError } = await listUsers(query)
+        const { success, data, message } = await listUsers(query)
 
-        if (ok) {
-            setUsers(value.list)
-            setTotal(value.total)
+        if (success) {
+            setUsers(data.list)
+            setTotal(data.total)
         } else {
-            setError(apiError)
+            setError(message)
         }
 
         setLoading(false)

@@ -117,10 +117,11 @@ func GetUser(ctx context.Context) (*models.User, bool) {
 func RequireAuth(ctx *fiber.Ctx) error {
 	user := ctx.Locals(userContextKey)
 	if user == nil {
-		return ctx.Status(401).JSON(common.ApiResponse[any]{
+		msg := ErrUnauthorized.Error()
+		return ctx.Status(401).JSON(common.ApiResult[any]{
 			Success: false,
 			Code:    401,
-			Message: ErrUnauthorized.Error(),
+			Message: &msg,
 		})
 	}
 	return ctx.Next()

@@ -48,8 +48,7 @@
         "exclude": [
             "dist",
             "public",
-            "node_modules",
-            "./common/index.ts"
+            "node_modules"
         ]
     }
 }

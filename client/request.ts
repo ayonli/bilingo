@@ -1,8 +1,15 @@
 import qs from "qs"
 import { startsWith } from "@ayonli/jsext/path"
 import { stripStart } from "@ayonli/jsext/string"
-import { Err, Ok, try_ } from "@ayonli/jsext/result"
-import type { ApiResponse, ApiResult } from "../common"
+import { try_ } from "@ayonli/jsext/result"
+import type { ApiResult } from "../common"
+
+interface ApiResponse<T extends unknown> {
+    success: boolean
+    code: number /* int */
+    data: T | null
+    message: string
+}
 
 export async function request<T>(
     method: string,
@@ -42,23 +49,39 @@ export async function request<T>(
     const contentType = response.headers.get("Content-Type") || ""
 
     if (contentType.includes("/json")) {
-        const { ok, value: result, error } = await try_<ApiResponse<T>, Error>(response.json())
+        const { ok, value: result, error } = await try_(response.json() as ApiResult<T>)
 
         if (ok) {
-            if (result.success) {
-                return Ok((result.data ?? null) as T)
-            } else {
-                return Err(result.message || "Unknown error")
-            }
+            return result
         } else if (!response.ok) {
-            return Err(`HTTP ${response.status}: ${response.statusText}`)
+            return {
+                success: false,
+                code: response.status,
+                data: null,
+                message: `HTTP ${response.status}: ${response.statusText}`,
+            }
         } else {
-            return Err(error.message)
+            return {
+                success: false,
+                code: 500,
+                data: null,
+                message: `Failed to parse JSON response: ${error}`,
+            }
         }
     } else if (!response.ok) {
-        return Err(`HTTP ${response.status}: ${response.statusText}`)
+        return {
+            success: false,
+            code: response.status,
+            data: null,
+            message: `HTTP ${response.status}: ${response.statusText}`,
+        }
     } else {
-        return Err("Unsupported response content type: " + contentType)
+        return {
+            success: false,
+            code: 500,
+            data: null,
+            message: "Unsupported response content type: " + contentType,
+        }
     }
 }
 

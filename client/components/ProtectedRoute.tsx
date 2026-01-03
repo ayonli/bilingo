@@ -14,11 +14,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps): JSX.Element {
 
     async function handleLogin(email: string, password: string): Promise<void> {
         const result = await login({ email, password })
-        if (result.ok) {
-            setCurrentUser(result.value)
+        if (result.success) {
+            setCurrentUser(result.data)
             setShowLoginDialog(false)
         } else {
-            throw new Error(result.error)
+            throw new Error(result.message)
         }
     }
 

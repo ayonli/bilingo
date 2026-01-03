@@ -14,11 +14,11 @@ func NewApiEntry(path string, handlers ...fiber.Handler) fiber.Router {
 }
 
 func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
-	var msg = ""
+	var msg *string
 	if len(message) > 0 {
-		msg = message[0]
+		msg = &message[0]
 	}
-	return ctx.JSON(common.ApiResponse[T]{
+	return ctx.JSON(common.ApiResult[T]{
 		Success: true,
 		Code:    200,
 		Data:    data,
@@ -27,9 +27,10 @@ func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
 }
 
 func Error(ctx *fiber.Ctx, code int, err error) error {
-	return ctx.Status(code).JSON(common.ApiResponse[any]{
+	msg := err.Error()
+	return ctx.Status(code).JSON(common.ApiResult[any]{
 		Success: false,
 		Code:    code,
-		Message: err.Error(),
+		Message: &msg,
 	})
 }

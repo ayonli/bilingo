@@ -23,8 +23,8 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     async function refreshUser(): Promise<void> {
         setLoading(true)
         const result = await getMe()
-        if (result.ok) {
-            setCurrentUser(result.value)
+        if (result.success) {
+            setCurrentUser(result.data)
         } else {
             setCurrentUser(null)
         }

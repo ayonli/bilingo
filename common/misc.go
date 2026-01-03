@@ -1,6 +1,6 @@
 package common
 
-type DateRange struct {
-	Start *string `json:"start" query:"start" form:"start"`
-	End   *string `json:"end" query:"end" form:"end"`
+type Range[T any] struct {
+	Start T `json:"start" query:"start" form:"start"`
+	End   T `json:"end" query:"end" form:"end"`
 }

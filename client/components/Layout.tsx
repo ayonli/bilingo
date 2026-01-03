@@ -19,21 +19,21 @@ export function Layout({ children }: LayoutProps): JSX.Element {
 
     async function handleLogout(): Promise<void> {
         const result = await logout()
-        if (result.ok) {
+        if (result.success) {
             setCurrentUser(null)
             navigate("/")
         } else {
-            await alert("登出失败: " + result.error)
+            await alert("登出失败: " + result.message)
         }
     }
 
     async function handleLogin(email: string, password: string): Promise<void> {
         const result = await login({ email, password })
-        if (result.ok) {
-            setCurrentUser(result.value)
+        if (result.success) {
+            setCurrentUser(result.data)
             setShowLoginDialog(false)
         } else {
-            throw new Error(result.error)
+            throw new Error(result.message)
         }
     }
 

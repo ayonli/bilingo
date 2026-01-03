@@ -8,7 +8,7 @@ import type * as common from "../../../common"
 export interface UserListQuery extends common.PaginatedQuery {
     search?: string
     emails?: string[]
-    birthdate?: common.DateRange
+    birthdate?: common.Range<string>
 }
 export interface UserCreate {
     email: string

@@ -8,12 +8,12 @@ export default function NewUserPage(): JSX.Element {
     const navigate = useNavigate()
 
     async function handleCreate(data: UserCreate): Promise<void> {
-        const { ok, value, error } = await createUser(data)
+        const { success, data: user, message } = await createUser(data)
 
-        if (ok) {
-            navigate(`/users/${encodeURIComponent(value.email)}`)
+        if (success) {
+            navigate(`/users/${encodeURIComponent(user.email)}`)
         } else {
-            throw new Error(error)
+            throw new Error(message)
         }
     }
 

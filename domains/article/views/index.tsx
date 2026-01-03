@@ -37,11 +37,11 @@ export default function ArticleIndex(): JSX.Element {
             }
 
             const result = await listArticles(query)
-            if (result.ok) {
-                setArticles(result.value.list)
-                setTotal(result.value.total)
+            if (result.success) {
+                setArticles(result.data.list)
+                setTotal(result.data.total)
             } else {
-                await alert("加载文章失败: " + result.error)
+                await alert("加载文章失败: " + result.message)
             }
         } finally {
             setLoading(false)

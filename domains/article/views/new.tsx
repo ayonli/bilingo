@@ -26,11 +26,11 @@ export default function ArticleNew(): JSX.Element {
             }
 
             const result = await createArticle(data)
-            if (result.ok) {
+            if (result.success) {
                 await alert("创建成功")
-                navigate("/articles/" + result.value.id)
+                navigate("/articles/" + result.data.id)
             } else {
-                await alert("创建失败: " + result.error)
+                await alert("创建失败: " + result.message)
             }
         } finally {
             setSaving(false)

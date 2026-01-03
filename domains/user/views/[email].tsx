@@ -40,44 +40,44 @@ export default function UserDetailPage(): JSX.Element {
         setLoading(true)
         setError("")
 
-        const { ok, value, error: apiError } = await getUser(decodeURIComponent(email))
+        const { success, data, message } = await getUser(decodeURIComponent(email))
 
-        if (ok) {
-            setUser(value)
+        if (success) {
+            setUser(data)
         } else {
-            setError(apiError)
+            setError(message)
         }
 
         setLoading(false)
     }
 
-    async function handleUpdate(data: UserUpdate): Promise<void> {
+    async function handleUpdate(updates: UserUpdate): Promise<void> {
         if (!email) {
             return
         }
 
-        const { ok, value, error: apiError } = await updateUser(decodeURIComponent(email), data)
+        const { success, data, message } = await updateUser(decodeURIComponent(email), updates)
 
-        if (ok) {
-            setUser(value)
+        if (success) {
+            setUser(data)
             setSearchParams({})
         } else {
-            throw new Error(apiError)
+            throw new Error(message)
         }
     }
 
-    async function handleChangePassword(data: PasswordChange): Promise<void> {
+    async function handleChangePassword(change: PasswordChange): Promise<void> {
         if (!email) {
             return
         }
 
-        const { ok, error: apiError } = await changePassword(decodeURIComponent(email), data)
+        const { success, message } = await changePassword(decodeURIComponent(email), change)
 
-        if (ok) {
+        if (success) {
             setSearchParams({})
             await alert("密码修改成功！")
         } else {
-            throw new Error(apiError)
+            throw new Error(message)
         }
     }
 
@@ -102,13 +102,13 @@ export default function UserDetailPage(): JSX.Element {
             return
         }
 
-        const { ok, error: apiError } = await deleteUser(decodeURIComponent(email))
+        const { success, message } = await deleteUser(decodeURIComponent(email))
 
-        if (ok) {
+        if (success) {
             await alert("用户删除成功！")
             navigate("/users")
         } else {
-            await alert(`删除用户失败: ${apiError}`)
+            await alert(`删除用户失败: ${message}`)
         }
     }
 

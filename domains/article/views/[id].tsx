@@ -35,20 +35,21 @@ export default function ArticleDetail(): JSX.Element {
         setLoading(true)
         try {
             const result = await getArticle(Number(id))
-            if (result.ok) {
-                setArticle(result.value)
-                setTitle(result.value.title)
-                setContent(result.value.content)
-                setCategory(result.value.category || "")
-                setTags(result.value.tags || "")
+            if (result.success) {
+                const article = result.data
+                setArticle(article)
+                setTitle(article.title)
+                setContent(article.content)
+                setCategory(article.category || "")
+                setTags(article.tags || "")
 
                 // Load author user info
-                const authorResult = await getUser(result.value.author)
-                if (authorResult.ok) {
-                    setAuthorUser(authorResult.value)
+                const authorResult = await getUser(article.author)
+                if (authorResult.success) {
+                    setAuthorUser(authorResult.data)
                 }
             } else {
-                await alert("加载文章失败: " + result.error)
+                await alert("加载文章失败: " + result.message)
             }
         } finally {
             setLoading(false)
@@ -76,13 +77,13 @@ export default function ArticleDetail(): JSX.Element {
             }
 
             const result = await updateArticle(Number(id), data)
-            if (result.ok) {
+            if (result.success) {
                 await alert("保存成功")
                 setEditMode(false)
                 setSearchParams({})
                 loadArticle()
             } else {
-                await alert("保存失败: " + result.error)
+                await alert("保存失败: " + result.message)
             }
         } finally {
             setSaving(false)
@@ -95,11 +96,11 @@ export default function ArticleDetail(): JSX.Element {
 
         try {
             const result = await deleteArticle(Number(id))
-            if (result.ok) {
+            if (result.success) {
                 await alert("删除成功")
                 navigate("/articles")
             } else {
-                await alert("删除失败: " + result.error)
+                await alert("删除失败: " + result.message)
             }
         } catch {
             await alert("删除失败")
@@ -111,10 +112,10 @@ export default function ArticleDetail(): JSX.Element {
 
         try {
             const result = await likeArticle(Number(id), action)
-            if (result.ok) {
+            if (result.success) {
                 loadArticle()
             } else {
-                await alert("操作失败: " + result.error)
+                await alert("操作失败: " + result.message)
             }
         } catch {
             await alert("操作失败")
