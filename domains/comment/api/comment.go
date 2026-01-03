@@ -73,12 +73,25 @@ func updateComment(ctx *fiber.Ctx) error {
 		return server.Error(ctx, 400, fmt.Errorf("invalid comment ID: %w", err))
 	}
 
+	comment, err := service.GetComment(ctx.UserContext(), uint(id))
+	if errors.Is(err, domain.ErrCommentNotFound) {
+		return server.Error(ctx, 404, domain.ErrCommentNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	// Check if user is the author
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || comment.Author != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
+	}
+
 	var data types.CommentUpdate
 	if err := ctx.BodyParser(&data); err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("malformed request body: %w", err))
 	}
 
-	comment, err := service.UpdateComment(ctx.UserContext(), uint(id), &data)
+	comment, err = service.UpdateComment(ctx.UserContext(), uint(id), &data)
 	if err != nil {
 		if errors.Is(err, domain.ErrCommentNotFound) {
 			return server.Error(ctx, 404, domain.ErrCommentNotFound)
@@ -93,6 +106,19 @@ func deleteComment(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 	if err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("invalid comment ID: %w", err))
+	}
+
+	comment, err := service.GetComment(ctx.UserContext(), uint(id))
+	if errors.Is(err, domain.ErrCommentNotFound) {
+		return server.Error(ctx, 404, domain.ErrCommentNotFound)
+	} else if err != nil {
+		return server.Error(ctx, 500, err)
+	}
+
+	// Check if user is the author
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || comment.Author != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
 
 	if err := service.DeleteComment(ctx.UserContext(), uint(id)); err != nil {

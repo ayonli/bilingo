@@ -13,7 +13,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var ErrUnauthorized = errors.New("unauthorized")
+var (
+	ErrUnauthorized = errors.New("unauthorized")
+	ErrForbidden    = errors.New("forbidden")
+)
+
 var authSecret []byte
 
 type contextKey string

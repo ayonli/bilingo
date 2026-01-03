@@ -75,12 +75,6 @@ func createArticle(ctx *fiber.Ctx) error {
 }
 
 func updateArticle(ctx *fiber.Ctx) error {
-	// Get authenticated user
-	user, ok := auth.GetUser(ctx.UserContext())
-	if !ok {
-		return server.Error(ctx, 401, auth.ErrUnauthorized)
-	}
-
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 	if err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
@@ -94,8 +88,9 @@ func updateArticle(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	if article.Author != user.Email {
-		return server.Error(ctx, 403, domain.ErrUnauthorized)
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || article.Author != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
 
 	var data types.ArticleUpdate
@@ -115,11 +110,6 @@ func updateArticle(ctx *fiber.Ctx) error {
 }
 
 func deleteArticle(ctx *fiber.Ctx) error {
-	user, ok := auth.GetUser(ctx.UserContext())
-	if !ok {
-		return server.Error(ctx, 401, auth.ErrUnauthorized)
-	}
-
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 	if err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("invalid article ID: %w", err))
@@ -133,8 +123,9 @@ func deleteArticle(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	if article.Author != user.Email {
-		return server.Error(ctx, 403, domain.ErrUnauthorized)
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || article.Author != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
 
 	if err := service.DeleteArticle(ctx.UserContext(), uint(id)); err != nil {

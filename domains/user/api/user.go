@@ -78,6 +78,13 @@ func createUser(ctx *fiber.Ctx) error {
 
 func updateUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
+
+	// Check if user is updating their own profile
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || email != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
+	}
+
 	var data types.UserUpdate
 	if err := ctx.BodyParser(&data); err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
@@ -87,18 +94,25 @@ func updateUser(ctx *fiber.Ctx) error {
 		data.Password = nil // Prevent password updates via this endpoint
 	}
 
-	user, err := service.UpdateUser(ctx.UserContext(), email, &data)
+	updatedUser, err := service.UpdateUser(ctx.UserContext(), email, &data)
 	if errors.Is(err, domain.ErrUserNotFound) {
 		return server.Error(ctx, 404, domain.ErrUserNotFound)
 	} else if err != nil {
 		return server.Error(ctx, 500, err)
 	}
 
-	return server.Success(ctx, user)
+	return server.Success(ctx, updatedUser)
 }
 
 func deleteUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
+
+	// Check if user is deleting their own account
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || email != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
+	}
+
 	err := service.DeleteUser(ctx.UserContext(), email)
 
 	if errors.Is(err, domain.ErrUserNotFound) {
@@ -112,6 +126,13 @@ func deleteUser(ctx *fiber.Ctx) error {
 
 func changePassword(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
+
+	// Check if user is changing their own password
+	user, _ := auth.GetUser(ctx.UserContext())
+	if user == nil || email != user.Email {
+		return server.Error(ctx, 403, auth.ErrForbidden)
+	}
+
 	var data types.PasswordChange
 	if err := ctx.BodyParser(&data); err != nil {
 		return server.Error(ctx, 400, fmt.Errorf("malformed input: %w", err))
