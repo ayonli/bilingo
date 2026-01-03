@@ -11,7 +11,7 @@
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",
         "sanitize:ts": "deno lint --fix  && deno fmt && tsc --noEmit",
-        "new": "tsx cmd/new-domain.ts",
+        "new-domain": "tsx cmd/new-domain.ts",
         "go2ts": "tsx go2ts.ts"
     },
     "dependencies": {

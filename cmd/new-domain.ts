@@ -1,6 +1,5 @@
 import process from "node:process"
 import { exists, mkdir, writeFile } from "@ayonli/jsext/fs"
-import { dedent } from "@ayonli/jsext/string"
 import { getGoModName } from "../utils/mod"
 import pluralize from "pluralize"
 import { run } from "@ayonli/jsext/cli"
@@ -46,7 +45,7 @@ const camelPluralName = toCamelCase(pluralName)
 // API in Go
 await writeFile(
     `domains/${name}/api/${name}.go`,
-    dedent`
+    `
 package api
 
 import (
@@ -153,13 +152,13 @@ func delete${PascalName}(ctx *fiber.Ctx) error {
 
 	return server.Success[any](ctx, nil)
 }
-`,
+`.trimStart(),
 )
 
 // API in TS
 await writeFile(
     `domains/${name}/api/${name}.ts`,
-    dedent`
+    `
 import type { ApiResult, PaginatedResult } from "@/common"
 import { ApiEntry } from "@/client"
 import type { ${PascalName} } from "../models"
@@ -188,13 +187,13 @@ export async function update${PascalName}(id: number, data: ${PascalName}Update)
 export async function delete${PascalName}(id: number): ApiResult<null> {
     return await ${camelName}Api.delete("/" + id)
 }
-`,
+`.trimStart(),
 )
 
 // Models in Go
 await writeFile(
     `domains/${name}/models/${name}.go`,
-    dedent`
+    `
 package models
 
 import "time"
@@ -209,7 +208,7 @@ type ${PascalName} struct {
 func (a *${PascalName}) TableName() string {
     return "${camelName}"
 }
-`,
+`.trimStart(),
 )
 
 // Models in TS
@@ -230,7 +229,7 @@ func (a *${PascalName}) TableName() string {
 // Repo in Go
 await writeFile(
     `domains/${name}/repo/${name}.go`,
-    dedent`
+    `
 package repo
 
 import (
@@ -251,13 +250,13 @@ type I${PascalName}Repo interface {
     Update(ctx context.Context, id uint, updates *types.${PascalName}Update) (*models.${PascalName}, error)
     Delete(ctx context.Context, id uint) error
 }
-`,
+`.trimStart(),
 )
 
 // Service in Go
 await writeFile(
     `domains/${name}/service/${name}.go`,
-    dedent`
+    `
 package service
 
 import (
@@ -288,13 +287,13 @@ func Update${PascalName}(ctx context.Context, id uint, updates *types.${PascalNa
 func Delete${PascalName}(ctx context.Context, id uint) error {
     return repo.${PascalName}Repo.Delete(ctx, id)
 }
-`,
+`.trimStart(),
 )
 
 // Types in Go
 await writeFile(
     `domains/${name}/types/${name}.go`,
-    dedent`
+    `
 package types
 
 import "${modName}/common"
@@ -312,7 +311,7 @@ type ${PascalName}ListQuery struct {
     common.PaginatedQuery \`tstype:",extends"\`
     // Add your fields here
 }
-`,
+`.trimStart(),
 )
 
 // Types in TS
@@ -333,20 +332,20 @@ type ${PascalName}ListQuery struct {
 // errors.go
 await writeFile(
     `domains/${name}/errors.go`,
-    dedent`
+    `
 package ${name}
 
 import "errors"
 
 var Err${PascalName}NotFound = errors.New("${name} not found")
-`,
+`.trimStart(),
 )
 
 // repo/db directory and implementation
 await mkdir(`domains/${name}/repo/db`)
 await writeFile(
     `domains/${name}/repo/db/${name}.go`,
-    dedent`
+    `
 package impl
 
 import (
@@ -361,6 +360,7 @@ import (
     "${modName}/domains/${name}/types"
     "${modName}/server/db"
     "gorm.io/gorm"
+    "gorm.io/gorm/clause"
 )
 
 type ${PascalName}Repo struct{}
@@ -472,7 +472,7 @@ func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
 
     return nil
 }
-`,
+`.trimStart(),
 )
 
 // Tables in Go
