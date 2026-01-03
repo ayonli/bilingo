@@ -6,10 +6,10 @@ import remarkGfm from "remark-gfm"
 import type { Article } from "../models"
 import type { ArticleUpdate } from "../types"
 import { deleteArticle, getArticle, likeArticle, updateArticle } from "../api/article.ts"
-import { useAuth } from "../../../client/contexts/AuthContext.tsx"
+import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
-import type { User } from "../../user/models"
-import { getUser } from "../../user/api/user.ts"
+import type { User } from "@/domains/user/models"
+import { getUser } from "@/domains/user/api/user.ts"
 
 export default function ArticleDetail(): JSX.Element {
     const { id } = useParams<{ id: string }>()

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import { listUsers } from "../api/user"
 import type { User } from "../models"
 import type { UserListQuery } from "../types"
-import { ProtectedRoute } from "../../../client/components"
+import { ProtectedRoute } from "@/client/components"
 
 export default function UserIndexPage(): JSX.Element {
     const [users, setUsers] = useState<User[]>([])

@@ -11,7 +11,10 @@ import { watch } from "chokidar"
 import process from "node:process"
 import { isMain } from "@ayonli/jsext/module"
 import { try_ } from "@ayonli/jsext/result"
-import { getGoModName } from "./utils/mod"
+import { getGoModName } from "../utils/mod"
+import { Mutex } from "@ayonli/jsext/lock"
+
+const genLock = new Mutex<void>(void 0)
 
 interface Lang2TSConfig {
     paths: string[]
@@ -33,6 +36,7 @@ export async function getWatchPaths(): Promise<string[]> {
 }
 
 export async function generate(dir: string): Promise<void> {
+    const lock = await genLock.lock()
     const modName = await getGoModName()
     const tempYaml = `
 type_mappings:
@@ -40,6 +44,7 @@ type_mappings:
 packages:
     - path: "${modName}/${dir}"
       indent: "    "
+      enum_style: "enum"
 `
     const cfgFile = "/tmp/tygo_temp.yaml"
     await writeFile(cfgFile, tempYaml)
@@ -54,6 +59,7 @@ packages:
         }
     } finally {
         await remove(cfgFile)
+        lock.unlock()
     }
 }
 
@@ -68,8 +74,10 @@ async function handleFileChange(path: string): Promise<void> {
 }
 
 async function startWatchMode(): Promise<void> {
-    const paths = await getWatchPaths()
-    const _watcher = watch(paths, {
+    let currentPaths = await getWatchPaths()
+    let currentConfig = JSON.stringify(currentPaths)
+
+    let goWatcher = watch(currentPaths, {
         persistent: true,
         awaitWriteFinish: true,
         ignored: (path, stat) => {
@@ -83,7 +91,53 @@ async function startWatchMode(): Promise<void> {
             console.log("Watching Go model files for changes...")
         })
 
+    // Watch package.json for configuration changes
+    const packageJsonPath = cwd() + "/package.json"
+    const configWatcher = watch(packageJsonPath, {
+        persistent: true,
+        awaitWriteFinish: true,
+    }).on("change", async () => {
+        console.log("\nDetected change in package.json, checking go2ts configuration...")
+
+        const newPaths = await getWatchPaths()
+        const newConfig = JSON.stringify(newPaths)
+
+        if (newConfig !== currentConfig) {
+            console.log("go2ts configuration changed, restarting watcher...")
+
+            // Close the old watcher
+            await goWatcher.close()
+
+            // Update current config
+            currentPaths = newPaths
+            currentConfig = newConfig
+
+            // Start new watcher with updated paths
+            goWatcher = watch(currentPaths, {
+                persistent: true,
+                awaitWriteFinish: true,
+                ignored: (path, stat) => {
+                    return !!stat?.isFile() && !path.endsWith(".go")
+                },
+            }).on("add", handleFileChange)
+                .on("change", handleFileChange)
+                .on("unlink", handleFileChange)
+                .on("unlinkDir", handleFileChange)
+                .once("ready", () => {
+                    console.log("Watcher restarted. Watching Go model files for changes...")
+                })
+        }
+    })
+
     console.log("Starting in watch mode...")
+
+    // Handle cleanup on exit
+    process.on("SIGINT", async () => {
+        console.log("\nShutting down watchers...")
+        await goWatcher.close()
+        await configWatcher.close()
+        process.exit(0)
+    })
 }
 
 function printUsage(): void {

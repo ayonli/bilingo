@@ -1,5 +1,5 @@
 import process from "node:process"
-import { exists, mkdir, writeFile } from "@ayonli/jsext/fs"
+import { exists, mkdir, readFileAsText, writeFile } from "@ayonli/jsext/fs"
 import { getGoModName } from "../utils/mod"
 import pluralize from "pluralize"
 import { run } from "@ayonli/jsext/cli"
@@ -14,6 +14,72 @@ function toPascalCase(str: string): string {
 function toCamelCase(str: string): string {
     const pascal = toPascalCase(str)
     return pascal.charAt(0).toLowerCase() + pascal.slice(1)
+}
+
+async function updateGoMainImports(modName: string, domainName: string): Promise<void> {
+    const mainGoPath = process.cwd() + "/server/main/main.go"
+    const content = await readFileAsText(mainGoPath)
+
+    // Split content into lines
+    const lines = content.split("\n")
+
+    // Find the closing parenthesis of the import block
+    let importEndIndex = -1
+    let inImportBlock = false
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim()
+        if (line.startsWith("import (")) {
+            inImportBlock = true
+        } else if (inImportBlock && line === ")") {
+            importEndIndex = i
+            break
+        }
+    }
+
+    if (importEndIndex === -1) {
+        throw new Error("Could not find import block closing parenthesis in server/main/main.go")
+    }
+
+    // Create the new import line
+    const newImport = `\t_ "${modName}/domains/${domainName}/api"`
+
+    // Insert the new import before the closing parenthesis
+    const newLines = [
+        ...lines.slice(0, importEndIndex),
+        newImport,
+        ...lines.slice(importEndIndex),
+    ]
+
+    await writeFile(mainGoPath, newLines.join("\n"))
+}
+
+async function updateGo2TsWatchPaths(domainName: string): Promise<void> {
+    const packageJsonPath = process.cwd() + "/package.json"
+    const content = await readFileAsText(packageJsonPath)
+    const packageJson = JSON.parse(content)
+
+    if (!packageJson.go2ts || !Array.isArray(packageJson.go2ts.paths)) {
+        throw new Error("Could not find go2ts.paths in package.json")
+    }
+
+    // Add the new domain's models and types paths
+    const modelsPath = `./domains/${domainName}/models`
+    const typesPath = `./domains/${domainName}/types`
+
+    if (!packageJson.go2ts.paths.includes(modelsPath)) {
+        packageJson.go2ts.paths.push(modelsPath)
+    }
+
+    if (!packageJson.go2ts.paths.includes(typesPath)) {
+        packageJson.go2ts.paths.push(typesPath)
+    }
+
+    // Sort paths alphabetically
+    packageJson.go2ts.paths.sort()
+
+    // Write back with proper formatting
+    await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 4) + "\n")
 }
 
 const name = process.argv[2]
@@ -213,10 +279,9 @@ func (a *${PascalName}) TableName() string {
 
 // Models in TS
 {
-    const { code, stderr, stdout } = await run("deno", [
+    const { code, stderr, stdout } = await run("npm", [
         "run",
-        "-A",
-        "go2ts.ts",
+        "go2ts",
         `domains/${name}/models`,
     ])
     if (code) {
@@ -316,10 +381,9 @@ type ${PascalName}ListQuery struct {
 
 // Types in TS
 {
-    const { code, stderr, stdout } = await run("deno", [
+    const { code, stderr, stdout } = await run("npm", [
         "run",
-        "-A",
-        "go2ts.ts",
+        "go2ts",
         `domains/${name}/types`,
     ])
     if (code) {
@@ -491,6 +555,12 @@ func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
     }
 }
 
+// Update server/main/main.go to import the new domain API
+await updateGoMainImports(modName, name)
+
+// Update package.json to add new domain paths to go2ts watch
+await updateGo2TsWatchPaths(name)
+
 console.log(`
 ✅ Domain "${name}" has been successfully created!
 
@@ -511,10 +581,11 @@ console.log(`
 
 📝 Next steps:
    1. Add fields to models/${name}.go
-   2. Run \`deno run -A go2ts.ts domains/${name}/models\` to generate TypeScript models
-   3. Update types/${name}.go with DTO fields
-   4. Run \`deno run -A go2ts.ts domains/${name}/types\` to generate TypeScript DTO types
-   5. Refine repository methods in repo/db/${name}.go
-   6. Refine service methods in service/${name}.go
-   7. Create React views in views/
+   2. Run \`npm run go2ts domains/${name}/models\` to generate TypeScript models
+   3. Run \`gorm gen -i domains/${name}/models -i domains/${name}/tables\` to generate table helpers
+   4. Update types/${name}.go with DTO fields
+   5. Run \`npm run go2ts domains/${name}/types\` to generate TypeScript DTO types
+   6. Refine repository methods in repo/db/${name}.go
+   7. Refine service methods in service/${name}.go
+   8. Create React views in views/
 `)

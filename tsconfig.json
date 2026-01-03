@@ -10,7 +10,6 @@
         "noUnusedParameters": true,
         "allowArbitraryExtensions": true,
         "allowImportingTsExtensions": true,
-        "rewriteRelativeImportExtensions": true,
         "module": "preserve",
         "noUncheckedSideEffectImports": true,
         "resolveJsonModule": true,
@@ -27,7 +26,10 @@
         "verbatimModuleSyntax": true,
         "jsx": "react-jsx",
         "target": "esnext",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "@/*": ["./*"]
+        }
     },
     "exclude": [
         ".*",

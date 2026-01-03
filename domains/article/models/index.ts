@@ -5,6 +5,8 @@
 
 export interface Article {
     id: number /* uint */
+    created_at: string /* RFC3339 */
+    updated_at: string /* RFC3339 */
     title: string
     content: string
     author: string
@@ -12,6 +14,4 @@ export interface Article {
     tags?: string
     likes: number /* int */
     dislikes: number /* int */
-    created_at: string /* RFC3339 */
-    updated_at: string /* RFC3339 */
 }

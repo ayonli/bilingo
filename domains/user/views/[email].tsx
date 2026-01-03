@@ -5,9 +5,9 @@ import { changePassword, deleteUser, getUser, updateUser } from "../api/user"
 import { PasswordChangeForm, UserForm } from "../components"
 import type { User } from "../models"
 import type { PasswordChange, UserUpdate } from "../types"
-import { ProtectedRoute } from "../../../client/components"
+import { ProtectedRoute } from "@/client/components"
+import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
-import { useAuth } from "../../../client/contexts/AuthContext.tsx"
 
 export default function UserDetailPage(): JSX.Element {
     const { email } = useParams<{ email: string }>()
