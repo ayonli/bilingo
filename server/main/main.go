@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 
 	_ "github.com/ayonli/bilingo/domains/article/api"
+	_ "github.com/ayonli/bilingo/domains/comment/api"
 	_ "github.com/ayonli/bilingo/domains/user/api"
 )
 

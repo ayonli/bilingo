@@ -52,13 +52,16 @@
             "./domains/user/models",
             "./domains/user/types",
             "./domains/article/models",
-            "./domains/article/types"
+            "./domains/article/types",
+            "./domains/comment/models",
+            "./domains/comment/types"
         ]
     },
     "orm-gen": {
         "paths": [
             "./domains/user/models",
-            "./domains/article/models"
+            "./domains/article/models",
+            "./domains/comment/models"
         ]
     }
 }

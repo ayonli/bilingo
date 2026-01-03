@@ -8,6 +8,7 @@ import type { PasswordChange, UserUpdate } from "../types"
 import { ProtectedRoute } from "@/client/components"
 import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
+import { CommentSection } from "@/domains/comment/views"
 
 export default function UserDetailPage(): JSX.Element {
     const { email } = useParams<{ email: string }>()
@@ -260,6 +261,13 @@ export default function UserDetailPage(): JSX.Element {
                                 </dl>
                             </div>
                         )}
+
+                    {/* Comments Section */}
+                    {!isEditMode && !isChangePasswordMode && (
+                        <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+                            <CommentSection bizType="user" bizId={user.email} />
+                        </div>
+                    )}
                 </div>
             </div>
         </ProtectedRoute>
