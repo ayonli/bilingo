@@ -58,7 +58,7 @@ func (r *CommentRepo) List(ctx context.Context, query *types.CommentListQuery) (
 		return nil, fmt.Errorf("failed to count comments: %w", err)
 	}
 
-	q = q.Order(tables.Comment.CreatedAt.Desc())
+	q = q.Order(tables.Comment.CreatedAt.Asc())
 	q = q.Limit(query.PageSize)
 	q = q.Offset(query.PageSize * (query.Page - 1))
 
