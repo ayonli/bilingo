@@ -4,6 +4,24 @@ import { getGoModName } from "../utils/mod"
 import pluralize from "pluralize"
 import { run } from "@ayonli/jsext/cli"
 
+const name = process.argv[2]
+if (!name) {
+    console.error("Please provide a domain name.")
+    process.exit(1)
+}
+
+if (await exists("domains/" + name)) {
+    console.error(`Domain "${name}" already exists.`)
+    process.exit(1)
+}
+
+const modName = await getGoModName()
+const pluralName = pluralize(name)
+const PascalName = toPascalCase(name)
+const PascalPluralName = toPascalCase(pluralName)
+const camelName = toCamelCase(name)
+const camelPluralName = toCamelCase(pluralName)
+
 function toPascalCase(str: string): string {
     return str
         .split(/[_-]/g)
@@ -16,7 +34,7 @@ function toCamelCase(str: string): string {
     return pascal.charAt(0).toLowerCase() + pascal.slice(1)
 }
 
-async function updateGoMainImports(modName: string, domainName: string): Promise<void> {
+async function updateGoMainImports(domain: string): Promise<void> {
     const mainGoPath = process.cwd() + "/server/main/main.go"
     const content = await readFileAsText(mainGoPath)
 
@@ -42,7 +60,7 @@ async function updateGoMainImports(modName: string, domainName: string): Promise
     }
 
     // Create the new import line
-    const newImport = `\t_ "${modName}/domains/${domainName}/api"`
+    const newImport = `\t_ "${modName}/domains/${domain}/api"`
 
     // Insert the new import before the closing parenthesis
     const newLines = [
@@ -54,7 +72,7 @@ async function updateGoMainImports(modName: string, domainName: string): Promise
     await writeFile(mainGoPath, newLines.join("\n"))
 }
 
-async function updateGo2TsWatchPaths(domainName: string): Promise<void> {
+async function updateGo2TsWatchPaths(domain: string): Promise<void> {
     const packageJsonPath = process.cwd() + "/package.json"
     const content = await readFileAsText(packageJsonPath)
     const packageJson = JSON.parse(content)
@@ -64,8 +82,8 @@ async function updateGo2TsWatchPaths(domainName: string): Promise<void> {
     }
 
     // Add the new domain's models and types paths
-    const modelsPath = `./domains/${domainName}/models`
-    const typesPath = `./domains/${domainName}/types`
+    const modelsPath = `./domains/${domain}/models`
+    const typesPath = `./domains/${domain}/types`
 
     if (!packageJson.go2ts.paths.includes(modelsPath)) {
         packageJson.go2ts.paths.push(modelsPath)
@@ -75,22 +93,28 @@ async function updateGo2TsWatchPaths(domainName: string): Promise<void> {
         packageJson.go2ts.paths.push(typesPath)
     }
 
-    // Sort paths alphabetically
-    packageJson.go2ts.paths.sort()
-
     // Write back with proper formatting
     await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 4) + "\n")
 }
 
-const name = process.argv[2]
-if (!name) {
-    console.error("Please provide a domain name.")
-    process.exit(1)
-}
+async function updateOrmGenWatchPaths(domain: string): Promise<void> {
+    const packageJsonPath = process.cwd() + "/package.json"
+    const content = await readFileAsText(packageJsonPath)
+    const packageJson = JSON.parse(content)
 
-if (await exists("domains/" + name)) {
-    console.error(`Domain "${name}" already exists.`)
-    process.exit(1)
+    if (!packageJson["orm-gen"] || !Array.isArray(packageJson["orm-gen"].paths)) {
+        throw new Error("Could not find orm-gen.paths in package.json")
+    }
+
+    // Add the new domain's models and types paths
+    const modelsPath = `./domains/${domain}/models`
+
+    if (!packageJson["orm-gen"].paths.includes(modelsPath)) {
+        packageJson["orm-gen"].paths.push(modelsPath)
+    }
+
+    // Write back with proper formatting
+    await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 4) + "\n")
 }
 
 await mkdir("domains/" + name)
@@ -100,13 +124,6 @@ await mkdir("domains/" + name + "/repo")
 await mkdir("domains/" + name + "/service")
 await mkdir("domains/" + name + "/types")
 await mkdir("domains/" + name + "/views")
-
-const modName = await getGoModName()
-const pluralName = pluralize(name)
-const PascalName = toPascalCase(name)
-const PascalPluralName = toPascalCase(pluralName)
-const camelName = toCamelCase(name)
-const camelPluralName = toCamelCase(pluralName)
 
 // API in Go
 await writeFile(
@@ -279,9 +296,8 @@ func (a *${PascalName}) TableName() string {
 
 // Models in TS
 {
-    const { code, stderr, stdout } = await run("npm", [
-        "run",
-        "go2ts",
+    const { code, stderr, stdout } = await run("tsx", [
+        "cmd/go2ts.ts",
         `domains/${name}/models`,
     ])
     if (code) {
@@ -381,9 +397,8 @@ type ${PascalName}ListQuery struct {
 
 // Types in TS
 {
-    const { code, stderr, stdout } = await run("npm", [
-        "run",
-        "go2ts",
+    const { code, stderr, stdout } = await run("tsx", [
+        "cmd/go2ts.ts",
         `domains/${name}/types`,
     ])
     if (code) {
@@ -541,12 +556,9 @@ func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
 
 // Tables in Go
 {
-    const { code, stderr, stdout } = await run("gorm", [
-        "gen",
-        "-i",
+    const { code, stderr, stdout } = await run("tsx", [
+        "cmd/orm-gen.ts",
         `domains/${name}/models`,
-        "-o",
-        `domains/${name}/tables`,
     ])
     if (code) {
         console.error(stderr)
@@ -556,10 +568,13 @@ func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
 }
 
 // Update server/main/main.go to import the new domain API
-await updateGoMainImports(modName, name)
+await updateGoMainImports(name)
 
 // Update package.json to add new domain paths to go2ts watch
 await updateGo2TsWatchPaths(name)
+
+// Update package.json to add new domain paths to orm-gen watch
+await updateOrmGenWatchPaths(name)
 
 console.log(`
 ✅ Domain "${name}" has been successfully created!
@@ -581,10 +596,10 @@ console.log(`
 
 📝 Next steps:
    1. Add fields to models/${name}.go
-   2. Run \`npm run go2ts domains/${name}/models\` to generate TypeScript models
-   3. Run \`gorm gen -i domains/${name}/models -i domains/${name}/tables\` to generate table helpers
+   2. Run \`npm run gen:ts domains/${name}/models\` to generate TypeScript models
+   3. Run \`npm run gen:orm domains/${name}/models\` to generate table helpers
    4. Update types/${name}.go with DTO fields
-   5. Run \`npm run go2ts domains/${name}/types\` to generate TypeScript DTO types
+   5. Run \`npm run gen:ts domains/${name}/types\` to generate TypeScript DTO types
    6. Refine repository methods in repo/db/${name}.go
    7. Refine service methods in service/${name}.go
    8. Create React views in views/

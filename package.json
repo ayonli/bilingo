@@ -11,8 +11,9 @@
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",
         "sanitize:ts": "deno lint --fix  && deno fmt && tsc --noEmit",
-        "new-domain": "tsx cmd/new-domain.ts",
-        "go2ts": "tsx cmd/go2ts.ts"
+        "gen:domain": "tsx cmd/new-domain.ts",
+        "gen:ts": "tsx cmd/go2ts.ts",
+        "gen:orm": "tsx cmd/orm-gen.ts"
     },
     "dependencies": {
         "@ayonli/jsext": "^1.9.0",
@@ -48,15 +49,16 @@
     },
     "go2ts": {
         "paths": [
-            "./domains/article/models",
-            "./domains/article/types",
             "./domains/user/models",
-            "./domains/user/types"
+            "./domains/user/types",
+            "./domains/article/models",
+            "./domains/article/types"
         ]
     },
-    "gorm": {
+    "orm-gen": {
         "paths": [
-            "./domains/user/models"
+            "./domains/user/models",
+            "./domains/article/models"
         ]
     }
 }

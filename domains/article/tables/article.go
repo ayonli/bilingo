@@ -8,6 +8,8 @@ import (
 
 var Article = struct {
 	ID        field.Number[uint]
+	CreatedAt field.Time
+	UpdatedAt field.Time
 	Title     field.String
 	Content   field.String
 	Author    field.String
@@ -15,10 +17,10 @@ var Article = struct {
 	Tags      field.String
 	Likes     field.Number[int]
 	Dislikes  field.Number[int]
-	CreatedAt field.Time
-	UpdatedAt field.Time
 }{
 	ID:        field.Number[uint]{}.WithColumn("id"),
+	CreatedAt: field.Time{}.WithColumn("created_at"),
+	UpdatedAt: field.Time{}.WithColumn("updated_at"),
 	Title:     field.String{}.WithColumn("title"),
 	Content:   field.String{}.WithColumn("content"),
 	Author:    field.String{}.WithColumn("author"),
@@ -26,6 +28,4 @@ var Article = struct {
 	Tags:      field.String{}.WithColumn("tags"),
 	Likes:     field.Number[int]{}.WithColumn("likes"),
 	Dislikes:  field.Number[int]{}.WithColumn("dislikes"),
-	CreatedAt: field.Time{}.WithColumn("created_at"),
-	UpdatedAt: field.Time{}.WithColumn("updated_at"),
 }
