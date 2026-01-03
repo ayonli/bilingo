@@ -379,7 +379,7 @@ package types
 
 import "${modName}/common"
 
-//tygo:emit import type * as common from "../../../common"
+//tygo:emit import type * as common from "@/common"
 type ${PascalName}Create struct {
     // Add your fields here
 }

@@ -1,20 +1,19 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/ayonli/bilingo/domains/system/types"
+)
 
 type OpLog struct {
-	ID          string    `json:"id" gorm:"primaryKey"`
-	ObjectType  string    `json:"object_type"`
-	ObjectId    string    `json:"object_id"`
-	Operation   string    `json:"operation"`
-	Result      string    `json:"result" validate:"oneof=success failure"`
-	Description *string   `json:"description"`
-	NewData     *string   `json:"new_data"`
-	OldData     *string   `json:"old_data"`
-	Timestamp   time.Time `json:"timestamp"`
-	User        *string   `json:"user"`
-	Ip          *string   `json:"ip"`
-	Times       uint32    `json:"times"`
+	ID               string `json:"id" gorm:"primaryKey"`
+	types.ObjectInfo `tstype:",extends"`
+	types.OpLogBase  `tstype:",extends"`
+	NewData          *string   `json:"new_data"`
+	OldData          *string   `json:"old_data"`
+	Timestamp        time.Time `json:"timestamp"`
+	Times            uint32    `json:"times"`
 }
 
 func (o *OpLog) TableName() string {

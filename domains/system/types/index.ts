@@ -3,11 +3,9 @@
 //////////
 // source: comment.go
 
-import type * as common from "../../../common"
+import type * as common from "@/common"
 
-export interface CommentCreate {
-    object_type: string
-    object_id: string
+export interface CommentCreate extends ObjectInfo {
     content: string
     author: string
     parent_id?: number /* uint */
@@ -15,29 +13,33 @@ export interface CommentCreate {
 export interface CommentUpdate {
     content?: string
 }
-export interface CommentListQuery extends common.PaginatedQuery {
-    object_type: string
-    object_id: string
+export interface CommentListQuery extends common.PaginatedQuery, ObjectInfo {
     author?: string
     parent_id?: number /* uint */
 }
 
 //////////
-// source: oplog.go
+// source: common.go
 
-export interface OpLogData {
+export interface ObjectInfo {
     object_type: string
     object_id: string
+}
+
+//////////
+// source: oplog.go
+
+export interface OpLogBase {
     operation: string
     description?: string
     result: string
-    new_data: object
-    old_data: object
-    timestamp?: string /* RFC3339 */ // Manually set timestamp if needed
     user?: string
     ip?: string
 }
-export interface OpLogListQuery extends common.PaginatedQuery {
-    object_type: string
-    object_id: string
+export interface OpLogData extends ObjectInfo, OpLogBase {
+    new_data: object
+    old_data: object
+    timestamp?: string /* RFC3339 */ // Manually set timestamp if needed
+}
+export interface OpLogListQuery extends common.PaginatedQuery, ObjectInfo {
 }

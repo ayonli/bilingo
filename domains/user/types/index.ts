@@ -3,7 +3,7 @@
 //////////
 // source: user.go
 
-import type * as common from "../../../common"
+import type * as common from "@/common"
 
 export interface UserListQuery extends common.PaginatedQuery {
     search?: string

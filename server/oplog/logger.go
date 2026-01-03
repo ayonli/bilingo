@@ -39,15 +39,19 @@ func (l *OpLogger) log(ctx context.Context, data LogData, result string) error {
 	}
 
 	logData := types.OpLogData{
-		ObjectType:  l.objectType,
-		ObjectId:    data.ObjectId,
-		Operation:   data.Operation,
-		Result:      result,
-		Description: data.Description,
-		NewData:     data.NewData,
-		OldData:     data.OldData,
-		User:        email,
-		Ip:          ip,
+		ObjectInfo: types.ObjectInfo{
+			ObjectType: l.objectType,
+			ObjectId:   data.ObjectId,
+		},
+		OpLogBase: types.OpLogBase{
+			Operation:   data.Operation,
+			Description: data.Description,
+			Result:      result,
+			User:        email,
+			Ip:          ip,
+		},
+		NewData: data.NewData,
+		OldData: data.OldData,
 	}
 
 	return service.CreateOpLog(ctx, &logData)

@@ -80,13 +80,15 @@ func (r *CommentRepo) Create(ctx context.Context, data *types.CommentCreate) (*m
 
 	now := time.Now()
 	comment := &models.Comment{
-		CreatedAt:  now,
-		UpdatedAt:  now,
-		ObjectType: data.ObjectType,
-		ObjectId:   data.ObjectId,
-		Content:    data.Content,
-		Author:     data.Author,
-		ParentId:   data.ParentId,
+		CreatedAt: now,
+		UpdatedAt: now,
+		ObjectInfo: types.ObjectInfo{
+			ObjectType: data.ObjectType,
+			ObjectId:   data.ObjectId,
+		},
+		Content:  data.Content,
+		Author:   data.Author,
+		ParentId: data.ParentId,
 	}
 
 	if err := gorm.G[models.Comment](conn).Create(ctx, comment); err != nil {

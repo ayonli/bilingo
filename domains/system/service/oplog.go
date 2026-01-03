@@ -108,18 +108,22 @@ func CreateOpLog(ctx context.Context, data *types.OpLogData) error {
 		return fmt.Errorf("failed to update op log: %w", err)
 	} else if rowsAffected == 0 {
 		log := models.OpLog{
-			ID:          uuid.NewString(),
-			ObjectType:  data.ObjectType,
-			ObjectId:    data.ObjectId,
-			Operation:   data.Operation,
-			Description: data.Description,
-			Result:      data.Result,
-			NewData:     newDataJson,
-			OldData:     oldDataJson,
-			Timestamp:   time.Now(),
-			User:        data.User,
-			Ip:          data.Ip,
-			Times:       1,
+			ID: uuid.NewString(),
+			ObjectInfo: types.ObjectInfo{
+				ObjectType: data.ObjectType,
+				ObjectId:   data.ObjectId,
+			},
+			OpLogBase: types.OpLogBase{
+				Operation:   data.Operation,
+				Description: data.Description,
+				Result:      data.Result,
+				User:        data.User,
+				Ip:          data.Ip,
+			},
+			NewData:   newDataJson,
+			OldData:   oldDataJson,
+			Timestamp: time.Now(),
+			Times:     1,
 		}
 
 		if err := gorm.G[models.OpLog](conn).Create(ctx, &log); err != nil {

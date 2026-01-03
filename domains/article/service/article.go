@@ -68,22 +68,37 @@ func LikeArticle(ctx context.Context, id uint, action string) (*models.Article, 
 		return nil, err
 	}
 
-	switch action {
-	case "like":
-		return repo.ArticleRepo.UpdateLikes(ctx, id, article.Likes+1)
-	case "unlike":
-		if article.Likes > 0 {
-			return repo.ArticleRepo.UpdateLikes(ctx, id, article.Likes-1)
+	article, err = func() (*models.Article, error) {
+		switch action {
+		case "like":
+			return repo.ArticleRepo.UpdateLikes(ctx, id, article.Likes+1)
+		case "unlike":
+			if article.Likes > 0 {
+				return repo.ArticleRepo.UpdateLikes(ctx, id, article.Likes-1)
+			}
+			return article, nil
+		case "dislike":
+			return repo.ArticleRepo.UpdateDislikes(ctx, id, article.Dislikes+1)
+		case "undislike":
+			if article.Dislikes > 0 {
+				return repo.ArticleRepo.UpdateDislikes(ctx, id, article.Dislikes-1)
+			}
+			return article, nil
+		default:
+			return nil, errors.New("invalid action")
 		}
-		return article, nil
-	case "dislike":
-		return repo.ArticleRepo.UpdateDislikes(ctx, id, article.Dislikes+1)
-	case "undislike":
-		if article.Dislikes > 0 {
-			return repo.ArticleRepo.UpdateDislikes(ctx, id, article.Dislikes-1)
-		}
-		return article, nil
-	default:
-		return nil, errors.New("invalid action")
+	}()
+
+	if err != nil {
+		return nil, err
 	}
+
+	_ = logger.Success(ctx, oplog.LogData{
+		ObjectId:  strconv.FormatUint(uint64(article.ID), 10),
+		Operation: action,
+		OldData:   &article,
+		NewData:   &article,
+	})
+
+	return article, err
 }

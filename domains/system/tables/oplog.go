@@ -11,25 +11,25 @@ var OpLog = struct {
 	ObjectType  field.String
 	ObjectId    field.String
 	Operation   field.String
-	Result      field.String
 	Description field.String
+	Result      field.String
+	User        field.String
+	Ip          field.String
 	NewData     field.String
 	OldData     field.String
 	Timestamp   field.Time
-	User        field.String
-	Ip          field.String
 	Times       field.Number[uint32]
 }{
 	ID:          field.String{}.WithColumn("id"),
 	ObjectType:  field.String{}.WithColumn("object_type"),
 	ObjectId:    field.String{}.WithColumn("object_id"),
 	Operation:   field.String{}.WithColumn("operation"),
-	Result:      field.String{}.WithColumn("result"),
 	Description: field.String{}.WithColumn("description"),
+	Result:      field.String{}.WithColumn("result"),
+	User:        field.String{}.WithColumn("user"),
+	Ip:          field.String{}.WithColumn("ip"),
 	NewData:     field.String{}.WithColumn("new_data"),
 	OldData:     field.String{}.WithColumn("old_data"),
 	Timestamp:   field.Time{}.WithColumn("timestamp"),
-	User:        field.String{}.WithColumn("user"),
-	Ip:          field.String{}.WithColumn("ip"),
 	Times:       field.Number[uint32]{}.WithColumn("times"),
 }

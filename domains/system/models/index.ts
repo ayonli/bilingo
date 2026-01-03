@@ -3,12 +3,12 @@
 //////////
 // source: comment.go
 
-export interface Comment {
+import type * as types from "../types"
+
+export interface Comment extends types.ObjectInfo {
     id: number /* uint */
     created_at: string /* RFC3339 */
     updated_at: string /* RFC3339 */
-    object_type: string
-    object_id: string
     content: string
     author: string
     parent_id?: number /* uint */
@@ -17,17 +17,10 @@ export interface Comment {
 //////////
 // source: oplog.go
 
-export interface OpLog {
+export interface OpLog extends types.ObjectInfo, types.OpLogBase {
     id: string
-    object_type: string
-    object_id: string
-    operation: string
-    result: string
-    description?: string
     new_data?: string
     old_data?: string
     timestamp: string /* RFC3339 */
-    user?: string
-    ip?: string
     times: number /* uint32 */
 }
