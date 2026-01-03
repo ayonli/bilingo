@@ -242,32 +242,32 @@ func delete${PascalName}(ctx *fiber.Ctx) error {
 await writeFile(
     `domains/${name}/api/${name}.ts`,
     `
-import type { ApiResult, PaginatedResult } from "@/common"
+import type { ApiResponse, PaginatedResult } from "@/common"
 import { ApiEntry } from "@/client"
 import type { ${PascalName} } from "../models"
 import type { ${PascalName}Create, ${PascalName}ListQuery, ${PascalName}Update } from "../types"
 
 const ${camelName}Api = new ApiEntry("/${pluralName}")
 
-export async function get${PascalName}(id: number): ApiResult<${PascalName}> {
+export async function get${PascalName}(id: number): ApiResponse<${PascalName}> {
     return await ${camelName}Api.get("/" + id)
 }
 
 export async function list${PascalPluralName}(
     query: Partial<${PascalName}ListQuery>,
-): ApiResult<PaginatedResult<${PascalName}>> {
+): ApiResponse<PaginatedResult<${PascalName}>> {
     return await ${camelName}Api.get("/", query)
 }
 
-export async function create${PascalName}(data: ${PascalName}Create): ApiResult<${PascalName}> {
+export async function create${PascalName}(data: ${PascalName}Create): ApiResponse<${PascalName}> {
     return await ${camelName}Api.post("/", null, data)
 }
 
-export async function update${PascalName}(id: number, data: ${PascalName}Update): ApiResult<${PascalName}> {
+export async function update${PascalName}(id: number, data: ${PascalName}Update): ApiResponse<${PascalName}> {
     return await ${camelName}Api.patch("/" + id, null, data)
 }
 
-export async function delete${PascalName}(id: number): ApiResult<null> {
+export async function delete${PascalName}(id: number): ApiResponse<null> {
     return await ${camelName}Api.delete("/" + id)
 }
 `.trimStart(),

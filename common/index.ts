@@ -12,7 +12,9 @@ export interface ErrorResult {
     message: string
 }
 
-export type ApiResult<T> = Promise<SuccessResult<T> | ErrorResult>
+export type ApiResult<T> = SuccessResult<T> | ErrorResult
+
+export type ApiResponse<T> = Promise<ApiResult<T>>
 
 export interface Range<T extends unknown> {
     start?: T
