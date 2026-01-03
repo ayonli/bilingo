@@ -9,10 +9,14 @@ import (
 	"github.com/ayonli/bilingo/domains/user/models"
 	repo "github.com/ayonli/bilingo/domains/user/repo"
 	"github.com/ayonli/bilingo/domains/user/types"
+	"github.com/ayonli/bilingo/server/timing"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func GetUser(ctx context.Context, email string) (*models.User, error) {
+	timing.Start(ctx, "user.service.GetUser")
+	defer timing.End(ctx, "user.service.GetUser")
+
 	user, err := repo.UserRepo.Get(ctx, email)
 	if err != nil {
 		return nil, err
@@ -25,6 +29,9 @@ func GetUser(ctx context.Context, email string) (*models.User, error) {
 }
 
 func ListUsers(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
+	timing.Start(ctx, "user.service.ListUser")
+	defer timing.End(ctx, "user.service.ListUser")
+
 	result, err := repo.UserRepo.List(ctx, query)
 	if err != nil {
 		return nil, err

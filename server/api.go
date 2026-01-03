@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/ayonli/bilingo/common"
+	"github.com/ayonli/bilingo/server/timing"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -10,7 +11,12 @@ var Api = fiber.New(fiber.Config{
 })
 
 func NewApiEntry(path string, handlers ...fiber.Handler) fiber.Router {
-	return Api.Group(path, handlers...)
+	// Prepend timing.UseTiming middleware to all handlers
+	allHandlers := make([]fiber.Handler, 0, len(handlers)+1)
+	allHandlers = append(allHandlers, timing.UseTiming)
+	allHandlers = append(allHandlers, handlers...)
+
+	return Api.Group(path, allHandlers...)
 }
 
 func Success[T any](ctx *fiber.Ctx, data T, message ...string) error {
