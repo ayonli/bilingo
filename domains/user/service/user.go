@@ -13,11 +13,9 @@ import (
 )
 
 func GetUser(ctx context.Context, email string) (*models.User, error) {
-	user, err := repo.UserRepo.FindByEmail(ctx, email)
+	user, err := repo.UserRepo.Get(ctx, email)
 	if err != nil {
 		return nil, err
-	} else if user == nil {
-		return nil, domain.ErrUserNotFound
 	}
 
 	// Clear password before returning
@@ -89,11 +87,9 @@ func DeleteUser(ctx context.Context, email string) error {
 
 func ChangePassword(ctx context.Context, email string, data *types.PasswordChange) error {
 	// Find the user
-	user, err := repo.UserRepo.FindByEmail(ctx, email)
+	user, err := repo.UserRepo.Get(ctx, email)
 	if err != nil {
 		return err
-	} else if user == nil {
-		return domain.ErrUserNotFound
 	}
 
 	// Verify old password
@@ -119,11 +115,9 @@ func ChangePassword(ctx context.Context, email string, data *types.PasswordChang
 }
 
 func Login(ctx context.Context, credentials *types.LoginCredentials) (*models.User, error) {
-	user, err := repo.UserRepo.FindByEmail(ctx, credentials.Email)
+	user, err := repo.UserRepo.Get(ctx, credentials.Email)
 	if err != nil {
 		return nil, err
-	} else if user == nil {
-		return nil, domain.ErrUserNotFound
 	}
 
 	// Verify password

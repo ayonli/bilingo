@@ -421,37 +421,38 @@ func (r *${PascalName}Repo) Create(ctx context.Context, data *types.${PascalName
         // Map fields from data
     }
 
-    if err := gorm.G[models.${PascalName}](conn).Create(${camelName}).Error(ctx); err != nil {
-        return nil, fmt.Errorf("failed to create ${name}: %w", err)
-    }
+    if err := gorm.G[models.${PascalName}](conn).Create(ctx, ${camelName}); err != nil {
+		return nil, fmt.Errorf("failed to create ${name}: %w", err)
+	}
 
     return ${camelName}, nil
 }
 
-func (r *${PascalName}Repo) Update(ctx context.Context, id uint, updates *types.${PascalName}Update) (*models.${PascalName}, error) {
+func (r *${PascalName}Repo) Update(ctx context.Context, id uint, data *types.${PascalName}Update) (*models.${PascalName}, error) {
     ${camelName}, err := r.Get(ctx, id)
     if err != nil {
         return nil, err
     }
 
-    // Apply updates to ${camelName}
-    // Example:
-    // if updates.Field != nil {
-    //     ${camelName}.Field = *updates.Field
-    // }
+    var updates []clause.Assigner
+
+    // Append updates based on non-nil fields in data
+
+    if len(updates) == 0 {
+        return ${camelName}, nil // No updates needed
+    }
 
     conn, err := server.UseDefaultDb()
     if err != nil {
         return nil, fmt.Errorf("failed to connect database: %w", err)
     }
 
-    err = conn.Model(&models.${PascalName}{}).Where("id = ?", id).Updates(map[string]any{
-        // Add your field mappings here
-        // "field": ${camelName}.Field,
-    }).Error
-    if err != nil {
-        return nil, fmt.Errorf("failed to update ${name}: %w", err)
-    }
+    rowsAffected, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).Set(updates...).Update(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update article: %w", err)
+	} else if rowsAffected == 0 {
+		return nil, domain.Err${PascalName}NotFound
+	}
 
     return r.Get(ctx, id)
 }
@@ -465,9 +466,7 @@ func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
     rowsAffected, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete ${name}: %w", err)
-	}
-
-	if rowsAffected == 0 {
+	} else if rowsAffected == 0 {
 		return domain.Err${PascalName}NotFound
 	}
 
@@ -515,5 +514,7 @@ console.log(`
    2. Run \`deno run -A go2ts.ts domains/${name}/models\` to generate TypeScript models
    3. Update types/${name}.go with DTO fields
    4. Run \`deno run -A go2ts.ts domains/${name}/types\` to generate TypeScript DTO types
-   5. Create React views in views/
+   5. Refine repository methods in repo/db/${name}.go
+   6. Refine service methods in service/${name}.go
+   7. Create React views in views/
 `)

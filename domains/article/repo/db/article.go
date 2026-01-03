@@ -12,6 +12,7 @@ import (
 	"github.com/ayonli/bilingo/domains/article/types"
 	"github.com/ayonli/bilingo/server"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ArticleRepo struct{}
@@ -101,23 +102,29 @@ func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, aut
 	return article, nil
 }
 
-func (r *ArticleRepo) Update(ctx context.Context, id uint, updates *types.ArticleUpdate) (*models.Article, error) {
+func (r *ArticleRepo) Update(ctx context.Context, id uint, data *types.ArticleUpdate) (*models.Article, error) {
 	article, err := r.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if updates.Title != nil {
-		article.Title = *updates.Title
+	var updates []clause.Assigner
+
+	if data.Title != nil && *data.Title != "" && *data.Title != article.Title {
+		updates = append(updates, tables.Article.Title.Set(*data.Title))
 	}
-	if updates.Content != nil {
-		article.Content = *updates.Content
+	if data.Content != nil && *data.Content != "" && *data.Content != article.Content {
+		updates = append(updates, tables.Article.Content.Set(*data.Content))
 	}
-	if updates.Category != nil {
-		article.Category = updates.Category
+	if data.Category != nil && *data.Category != "" && *data.Category != *article.Category {
+		updates = append(updates, tables.Article.Category.Set(*data.Category))
 	}
-	if updates.Tags != nil {
-		article.Tags = updates.Tags
+	if data.Tags != nil && *data.Tags != "" && *data.Tags != *article.Tags {
+		updates = append(updates, tables.Article.Tags.Set(*data.Tags))
+	}
+
+	if len(updates) == 0 {
+		return article, nil // No updates needed
 	}
 
 	conn, err := server.UseDefaultDb()
@@ -125,14 +132,11 @@ func (r *ArticleRepo) Update(ctx context.Context, id uint, updates *types.Articl
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	err = conn.Model(&models.Article{}).Where("id = ?", id).Updates(map[string]any{
-		"title":    article.Title,
-		"content":  article.Content,
-		"category": article.Category,
-		"tags":     article.Tags,
-	}).Error
+	rowsAffected, err := gorm.G[models.Article](conn).Where(tables.Article.ID.Eq(id)).Set(updates...).Update(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update article: %w", err)
+	} else if rowsAffected == 0 {
+		return nil, domain.ErrArticleNotFound
 	}
 
 	return r.Get(ctx, id)
@@ -147,9 +151,7 @@ func (r *ArticleRepo) Delete(ctx context.Context, id uint) error {
 	rowsAffected, err := gorm.G[models.Article](conn).Where(tables.Article.ID.Eq(id)).Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete article: %w", err)
-	}
-
-	if rowsAffected == 0 {
+	} else if rowsAffected == 0 {
 		return domain.ErrArticleNotFound
 	}
 

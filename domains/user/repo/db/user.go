@@ -12,11 +12,12 @@ import (
 	"github.com/ayonli/bilingo/domains/user/types"
 	"github.com/ayonli/bilingo/server"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UserRepo struct{}
 
-func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *UserRepo) Get(ctx context.Context, email string) (*models.User, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
@@ -24,7 +25,7 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (*models.User,
 
 	user, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).First(ctx)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+		return nil, domain.ErrUserNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to find user: %w", err)
 	}
@@ -81,63 +82,62 @@ func (r *UserRepo) List(ctx context.Context, query types.UserListQuery) (*common
 	return &common.PaginatedResult[models.User]{Total: int(total), List: users}, nil
 }
 
-func (r *UserRepo) Create(ctx context.Context, user *types.UserCreate) (*models.User, error) {
+func (r *UserRepo) Create(ctx context.Context, data *types.UserCreate) (*models.User, error) {
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	newUser := models.User{
-		Email:     user.Email,
-		Name:      user.Name,
-		Password:  &user.Password,
-		Birthdate: user.Birthdate,
+	user := models.User{
+		Email:     data.Email,
+		Name:      data.Name,
+		Password:  &data.Password,
+		Birthdate: data.Birthdate,
 	}
 
-	if err := gorm.G[models.User](conn).Create(ctx, &newUser); err != nil {
+	if err := gorm.G[models.User](conn).Create(ctx, &user); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return &newUser, nil
+	return &user, nil
 }
 
-func (r *UserRepo) Update(ctx context.Context, email string, user *types.UserUpdate) (*models.User, error) {
-	// First, find the existing user using FindByEmail
-	existingUser, err := r.FindByEmail(ctx, email)
+func (r *UserRepo) Update(ctx context.Context, email string, data *types.UserUpdate) (*models.User, error) {
+	user, err := r.Get(ctx, email)
 	if err != nil {
 		return nil, err
-	} else if existingUser == nil {
-		return nil, domain.ErrUserNotFound
 	}
+
+	var updates []clause.Assigner
 
 	// Update only the fields that are provided
-	if user.Name != nil {
-		existingUser.Name = *user.Name
+	if data.Name != nil && *data.Name != "" && *data.Name != user.Name {
+		updates = append(updates, tables.User.Name.Set(*data.Name))
 	}
-	if user.Password != nil {
-		existingUser.Password = user.Password
+	if data.Password != nil && *data.Password != "" && *data.Password != *user.Password {
+		updates = append(updates, tables.User.Password.Set(*data.Password))
 	}
-	if user.Birthdate != nil {
-		existingUser.Birthdate = user.Birthdate
+	if data.Birthdate != nil && *data.Birthdate != "" && *data.Birthdate != *user.Birthdate {
+		updates = append(updates, tables.User.Birthdate.Set(*data.Birthdate))
 	}
 
-	// Open database connection for update
+	if len(updates) == 0 {
+		return user, nil // No updates needed
+	}
+
 	conn, err := server.UseDefaultDb()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	// Update the user in database
-	err = conn.Model(&models.User{}).Where("email = ?", email).Updates(map[string]any{
-		"name":      existingUser.Name,
-		"password":  existingUser.Password,
-		"birthdate": existingUser.Birthdate,
-	}).Error
+	rowsAffected, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).Set(updates...).Update(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
+	} else if rowsAffected == 0 {
+		return nil, domain.ErrUserNotFound
 	}
 
-	return existingUser, nil
+	return r.Get(ctx, email)
 }
 
 func (r *UserRepo) Delete(ctx context.Context, email string) error {
@@ -149,9 +149,7 @@ func (r *UserRepo) Delete(ctx context.Context, email string) error {
 	rowsAffected, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).Delete(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
-	}
-
-	if rowsAffected == 0 {
+	} else if rowsAffected == 0 {
 		return domain.ErrUserNotFound
 	}
 

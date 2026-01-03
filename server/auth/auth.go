@@ -53,8 +53,8 @@ func UseAuth(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch user from database
-	user, err := repo.UserRepo.FindByEmail(ctx.UserContext(), email)
-	if err != nil || user == nil {
+	user, err := repo.UserRepo.Get(ctx.UserContext(), email)
+	if err != nil {
 		return ctx.Next()
 	}
 
