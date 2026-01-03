@@ -3,10 +3,10 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "dev:server": "go run server/main/index.go",
+        "dev:server": "go run server/main/main.go",
         "dev:client": "vite",
         "build": "npm run build:server && npm run build:client",
-        "build:server": "go build -o ../dist/server/main server/main/index.go",
+        "build:server": "go build -o ../dist/server/main server/main/main.go",
         "build:client": "vite build",
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",

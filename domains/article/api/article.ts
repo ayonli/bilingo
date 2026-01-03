@@ -19,7 +19,7 @@ export async function createArticle(data: ArticleCreate): ApiResult<Article> {
     return await articleApi.post("/", null, data)
 }
 
-export async function updateArticle(id: number, data: ArticleUpdate): ApiResult<null> {
+export async function updateArticle(id: number, data: ArticleUpdate): ApiResult<Article> {
     return await articleApi.patch("/" + id, null, data)
 }
 

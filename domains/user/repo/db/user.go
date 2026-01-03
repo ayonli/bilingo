@@ -1,4 +1,4 @@
-package db
+package impl
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/ayonli/bilingo/domains/user/models"
 	"github.com/ayonli/bilingo/domains/user/tables"
 	"github.com/ayonli/bilingo/domains/user/types"
-	"github.com/ayonli/bilingo/server"
+	"github.com/ayonli/bilingo/server/db"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -18,9 +18,9 @@ import (
 type UserRepo struct{}
 
 func (r *UserRepo) Get(ctx context.Context, email string) (*models.User, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	user, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).First(ctx)
@@ -34,9 +34,9 @@ func (r *UserRepo) Get(ctx context.Context, email string) (*models.User, error) 
 }
 
 func (r *UserRepo) List(ctx context.Context, query types.UserListQuery) (*common.PaginatedResult[models.User], error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	q := gorm.G[models.User](conn).Where("1 = 1")
@@ -83,9 +83,9 @@ func (r *UserRepo) List(ctx context.Context, query types.UserListQuery) (*common
 }
 
 func (r *UserRepo) Create(ctx context.Context, data *types.UserCreate) (*models.User, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	user := models.User{
@@ -125,9 +125,9 @@ func (r *UserRepo) Update(ctx context.Context, email string, data *types.UserUpd
 		return user, nil // No updates needed
 	}
 
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	rowsAffected, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).Set(updates...).Update(ctx)
@@ -141,9 +141,9 @@ func (r *UserRepo) Update(ctx context.Context, email string, data *types.UserUpd
 }
 
 func (r *UserRepo) Delete(ctx context.Context, email string) error {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
+		return db.ConnError(err)
 	}
 
 	rowsAffected, err := gorm.G[models.User](conn).Where(tables.User.Email.Eq(email)).Delete(ctx)

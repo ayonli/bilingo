@@ -1,4 +1,4 @@
-package db
+package impl
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/ayonli/bilingo/domains/article/models"
 	"github.com/ayonli/bilingo/domains/article/tables"
 	"github.com/ayonli/bilingo/domains/article/types"
-	"github.com/ayonli/bilingo/server"
+	"github.com/ayonli/bilingo/server/db"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -18,9 +18,9 @@ import (
 type ArticleRepo struct{}
 
 func (r *ArticleRepo) Get(ctx context.Context, id uint) (*models.Article, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	article, err := gorm.G[models.Article](conn).Where(tables.Article.ID.Eq(id)).First(ctx)
@@ -34,9 +34,9 @@ func (r *ArticleRepo) Get(ctx context.Context, id uint) (*models.Article, error)
 }
 
 func (r *ArticleRepo) List(ctx context.Context, query *types.ArticleListQuery) (*common.PaginatedResult[models.Article], error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	q := gorm.G[models.Article](conn).Where("1 = 1")
@@ -80,9 +80,9 @@ func (r *ArticleRepo) List(ctx context.Context, query *types.ArticleListQuery) (
 }
 
 func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, author string) (*models.Article, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	article := &models.Article{
@@ -127,9 +127,9 @@ func (r *ArticleRepo) Update(ctx context.Context, id uint, data *types.ArticleUp
 		return article, nil // No updates needed
 	}
 
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	rowsAffected, err := gorm.G[models.Article](conn).Where(tables.Article.ID.Eq(id)).Set(updates...).Update(ctx)
@@ -143,9 +143,9 @@ func (r *ArticleRepo) Update(ctx context.Context, id uint, data *types.ArticleUp
 }
 
 func (r *ArticleRepo) Delete(ctx context.Context, id uint) error {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
+		return db.ConnError(err)
 	}
 
 	rowsAffected, err := gorm.G[models.Article](conn).Where(tables.Article.ID.Eq(id)).Delete(ctx)
@@ -159,9 +159,9 @@ func (r *ArticleRepo) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *ArticleRepo) UpdateLikes(ctx context.Context, id uint, likes int) (*models.Article, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	err = conn.Model(&models.Article{}).Where("id = ?", id).Update("likes", likes).Error
@@ -173,9 +173,9 @@ func (r *ArticleRepo) UpdateLikes(ctx context.Context, id uint, likes int) (*mod
 }
 
 func (r *ArticleRepo) UpdateDislikes(ctx context.Context, id uint, dislikes int) (*models.Article, error) {
-	conn, err := server.UseDefaultDb()
+	conn, err := db.Default()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database: %w", err)
+		return nil, db.ConnError(err)
 	}
 
 	err = conn.Model(&models.Article{}).Where("id = ?", id).Update("dislikes", dislikes).Error

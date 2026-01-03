@@ -347,7 +347,7 @@ await mkdir(`domains/${name}/repo/db`)
 await writeFile(
     `domains/${name}/repo/db/${name}.go`,
     dedent`
-package db
+package impl
 
 import (
     "context"
@@ -359,16 +359,16 @@ import (
     "${modName}/domains/${name}/models"
     "${modName}/domains/${name}/tables"
     "${modName}/domains/${name}/types"
-    "${modName}/server"
+    "${modName}/server/db"
     "gorm.io/gorm"
 )
 
 type ${PascalName}Repo struct{}
 
 func (r *${PascalName}Repo) Get(ctx context.Context, id uint) (*models.${PascalName}, error) {
-    conn, err := server.UseDefaultDb()
+    conn, err := db.Default()
     if err != nil {
-        return nil, fmt.Errorf("failed to connect database: %w", err)
+        return nil, db.ConnError(err)
     }
 
     ${camelName}, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).First(ctx)
@@ -382,9 +382,9 @@ func (r *${PascalName}Repo) Get(ctx context.Context, id uint) (*models.${PascalN
 }
 
 func (r *${PascalName}Repo) List(ctx context.Context, query *types.${PascalName}ListQuery) (*common.PaginatedResult[models.${PascalName}], error) {
-    conn, err := server.UseDefaultDb()
+    conn, err := db.Default()
     if err != nil {
-        return nil, fmt.Errorf("failed to connect database: %w", err)
+        return nil, db.ConnError(err)
     }
 
     q := gorm.G[models.${PascalName}](conn).Where("1 = 1")
@@ -412,9 +412,9 @@ func (r *${PascalName}Repo) List(ctx context.Context, query *types.${PascalName}
 }
 
 func (r *${PascalName}Repo) Create(ctx context.Context, data *types.${PascalName}Create) (*models.${PascalName}, error) {
-    conn, err := server.UseDefaultDb()
+    conn, err := db.Default()
     if err != nil {
-        return nil, fmt.Errorf("failed to connect database: %w", err)
+        return nil, db.ConnError(err)
     }
 
     ${camelName} := &models.${PascalName}{
@@ -442,9 +442,9 @@ func (r *${PascalName}Repo) Update(ctx context.Context, id uint, data *types.${P
         return ${camelName}, nil // No updates needed
     }
 
-    conn, err := server.UseDefaultDb()
+    conn, err := db.Default()
     if err != nil {
-        return nil, fmt.Errorf("failed to connect database: %w", err)
+        return nil, db.ConnError(err)
     }
 
     rowsAffected, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).Set(updates...).Update(ctx)
@@ -458,9 +458,9 @@ func (r *${PascalName}Repo) Update(ctx context.Context, id uint, data *types.${P
 }
 
 func (r *${PascalName}Repo) Delete(ctx context.Context, id uint) error {
-    conn, err := server.UseDefaultDb()
+    conn, err := db.Default()
     if err != nil {
-        return fmt.Errorf("failed to connect database: %w", err)
+        return db.ConnError(err)
     }
 
     rowsAffected, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).Delete(ctx)

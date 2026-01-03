@@ -1,4 +1,4 @@
-package server
+package db
 
 import (
 	"fmt"
@@ -28,12 +28,17 @@ func init() {
 	_ = godotenv.Load()
 }
 
-// CreateDbConn creates a database connection based on the provided database URL.
+// ConnError wraps a database connection error with a standard message.
+func ConnError(reason error) error {
+	return fmt.Errorf("database connection error: %w", reason)
+}
+
+// CreateConn creates a database connection based on the provided database URL.
 // Supported formats:
 //   - SQLite: sqlite://path/to/database.db or file:path/to/database.db
 //   - MySQL: mysql://user:password@tcp(host:port)/dbname?params
 //   - PostgreSQL: postgresql://user:password@host:port/dbname?params or postgres://...
-func CreateDbConn(dbURL string) (*gorm.DB, error) {
+func CreateConn(dbURL string) (*gorm.DB, error) {
 	if dbURL == "" {
 		return nil, fmt.Errorf("database URL is empty")
 	}
@@ -83,8 +88,8 @@ func CreateDbConn(dbURL string) (*gorm.DB, error) {
 	return db, nil
 }
 
-// UseDefaultDb returns the default database connection.
-func UseDefaultDb() (*gorm.DB, error) {
+// Default returns the default database connection according to the configuration.
+func Default() (*gorm.DB, error) {
 	once.Do(func() {
 		cfg := config.GetConfig()
 		if cfg.DBUrl == "" {
@@ -92,7 +97,7 @@ func UseDefaultDb() (*gorm.DB, error) {
 			return
 		}
 
-		db, err := CreateDbConn(cfg.DBUrl)
+		db, err := CreateConn(cfg.DBUrl)
 		if err != nil {
 			defaultDb.Error = err
 			return
