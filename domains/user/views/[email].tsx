@@ -265,7 +265,7 @@ export default function UserDetailPage(): JSX.Element {
                     {/* Comments Section */}
                     {!isEditMode && !isChangePasswordMode && (
                         <div className="bg-white shadow-md rounded-lg p-6 mt-6">
-                            <CommentSection bizType="user" bizId={user.email} />
+                            <CommentSection objectType="user" objectId={user.email} />
                         </div>
                     )}
                 </div>

@@ -6,8 +6,8 @@
 import type * as common from "../../../common"
 
 export interface CommentCreate {
-    biz_type: string
-    biz_id: string
+    object_type: string
+    object_id: string
     content: string
     author: string
     parent_id?: number /* uint */
@@ -16,8 +16,8 @@ export interface CommentUpdate {
     content?: string
 }
 export interface CommentListQuery extends common.PaginatedQuery {
-    biz_type: string
-    biz_id: string
+    object_type: string
+    object_id: string
     author?: string
     parent_id?: number /* uint */
 }

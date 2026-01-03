@@ -398,7 +398,7 @@ export default function ArticleDetail(): JSX.Element {
 
             {/* Comments Section */}
             <div className="bg-white shadow rounded-lg p-8 mt-6">
-                <CommentSection bizType="article" bizId={id || ""} />
+                <CommentSection objectType="article" objectId={id || ""} />
             </div>
         </div>
     )

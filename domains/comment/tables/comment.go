@@ -7,21 +7,21 @@ import (
 )
 
 var Comment = struct {
-	ID        field.Number[uint]
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	BizType   field.String
-	BizId     field.String
-	Content   field.String
-	Author    field.String
-	ParentId  field.Number[uint]
+	ID         field.Number[uint]
+	CreatedAt  field.Time
+	UpdatedAt  field.Time
+	ObjectType field.String
+	ObjectId   field.String
+	Content    field.String
+	Author     field.String
+	ParentId   field.Number[uint]
 }{
-	ID:        field.Number[uint]{}.WithColumn("id"),
-	CreatedAt: field.Time{}.WithColumn("created_at"),
-	UpdatedAt: field.Time{}.WithColumn("updated_at"),
-	BizType:   field.String{}.WithColumn("biz_type"),
-	BizId:     field.String{}.WithColumn("biz_id"),
-	Content:   field.String{}.WithColumn("content"),
-	Author:    field.String{}.WithColumn("author"),
-	ParentId:  field.Number[uint]{}.WithColumn("parent_id"),
+	ID:         field.Number[uint]{}.WithColumn("id"),
+	CreatedAt:  field.Time{}.WithColumn("created_at"),
+	UpdatedAt:  field.Time{}.WithColumn("updated_at"),
+	ObjectType: field.String{}.WithColumn("object_type"),
+	ObjectId:   field.String{}.WithColumn("object_id"),
+	Content:    field.String{}.WithColumn("content"),
+	Author:     field.String{}.WithColumn("author"),
+	ParentId:   field.Number[uint]{}.WithColumn("parent_id"),
 }

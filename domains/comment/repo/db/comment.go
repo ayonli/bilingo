@@ -41,8 +41,8 @@ func (r *CommentRepo) List(ctx context.Context, query *types.CommentListQuery) (
 	}
 
 	q := gorm.G[models.Comment](conn).
-		Where(tables.Comment.BizType.Eq(query.BizType)).
-		Where(tables.Comment.BizId.Eq(query.BizId))
+		Where(tables.Comment.ObjectType.Eq(query.ObjectType)).
+		Where(tables.Comment.ObjectId.Eq(query.ObjectId))
 
 	if query.Author != nil && *query.Author != "" {
 		q = q.Where(tables.Comment.Author.Eq(*query.Author))
@@ -80,13 +80,13 @@ func (r *CommentRepo) Create(ctx context.Context, data *types.CommentCreate) (*m
 
 	now := time.Now()
 	comment := &models.Comment{
-		CreatedAt: now,
-		UpdatedAt: now,
-		BizType:   data.BizType,
-		BizId:     data.BizId,
-		Content:   data.Content,
-		Author:    data.Author,
-		ParentId:  data.ParentId,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+		ObjectType: data.ObjectType,
+		ObjectId:   data.ObjectId,
+		Content:    data.Content,
+		Author:     data.Author,
+		ParentId:   data.ParentId,
 	}
 
 	if err := gorm.G[models.Comment](conn).Create(ctx, comment); err != nil {

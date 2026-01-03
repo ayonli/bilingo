@@ -7,11 +7,8 @@ export interface Comment {
     id: number /* uint */
     created_at: string /* RFC3339 */
     updated_at: string /* RFC3339 */
-    /**
-     * Add your fields here
-     */
-    biz_type: string
-    biz_id: string
+    object_type: string
+    object_id: string
     content: string
     author: string
     parent_id?: number /* uint */

@@ -7,11 +7,11 @@ import { createComment, deleteComment, listComments, updateComment } from "../ap
 import { useAuth } from "@/client/contexts/AuthContext.tsx"
 
 interface CommentSectionProps {
-    bizType: string
-    bizId: number | string
+    objectType: string
+    objectId: number | string
 }
 
-export default function CommentSection({ bizType, bizId }: CommentSectionProps): JSX.Element {
+export default function CommentSection({ objectType, objectId }: CommentSectionProps): JSX.Element {
     const { currentUser } = useAuth()
     const [comments, setComments] = useState<Comment[]>([])
     const [loading, setLoading] = useState(true)
@@ -28,8 +28,8 @@ export default function CommentSection({ bizType, bizId }: CommentSectionProps):
         setLoading(true)
         try {
             const result = await listComments({
-                biz_type: bizType,
-                biz_id: String(bizId),
+                object_type: objectType,
+                object_id: String(objectId),
                 page: 1,
                 page_size: 100,
             })
@@ -45,7 +45,7 @@ export default function CommentSection({ bizType, bizId }: CommentSectionProps):
 
     useEffect(() => {
         loadComments()
-    }, [bizType, bizId])
+    }, [objectType, objectId])
 
     useEffect(() => {
         if (currentUser) {
@@ -62,8 +62,8 @@ export default function CommentSection({ bizType, bizId }: CommentSectionProps):
         setSubmitting(true)
         try {
             const data: CommentCreate = {
-                biz_type: bizType,
-                biz_id: String(bizId),
+                object_type: objectType,
+                object_id: String(objectId),
                 content: newComment.trim(),
                 author: authorEmail.trim(),
                 parent_id: replyToId || undefined,
