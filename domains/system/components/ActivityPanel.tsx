@@ -1,19 +1,19 @@
 import type { JSX } from "react"
 import { useState } from "react"
-import CommentSection from "./CommentSection.tsx"
-import OpLogTable from "@/domains/system/views/OpLogTable.tsx"
+import CommentPanel from "./CommentPanel.tsx"
+import OpLogTable from "./OpLogTable.tsx"
 
-interface CommentAndLogSectionProps {
+export interface ActivityPanelProps {
     objectType: string
     objectId: number | string
 }
 
 type TabType = "comments" | "logs"
 
-export default function CommentAndLogSection({
+export default function ActivityPanel({
     objectType,
     objectId,
-}: Readonly<CommentAndLogSectionProps>): JSX.Element {
+}: Readonly<ActivityPanelProps>): JSX.Element {
     const [activeTab, setActiveTab] = useState<TabType>("comments")
 
     return (
@@ -46,7 +46,7 @@ export default function CommentAndLogSection({
 
             {/* Comments Tab Content */}
             {activeTab === "comments" && (
-                <CommentSection objectType={objectType} objectId={objectId} />
+                <CommentPanel objectType={objectType} objectId={objectId} />
             )}
 
             {/* Logs Tab Content */}

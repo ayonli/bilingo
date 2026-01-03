@@ -1,17 +1,17 @@
 import type { JSX } from "react"
 import { useEffect, useRef, useState } from "react"
 import { alert, confirm } from "@ayonli/jsext/dialog"
-import type { Comment } from "../models"
-import type { CommentCreate, CommentUpdate } from "../types"
+import type { Comment } from "../models/index.ts"
+import type { CommentCreate, CommentUpdate } from "../types/index.ts"
 import { createComment, deleteComment, listComments, updateComment } from "../api/comment.ts"
 import { useAuth } from "@/client/contexts/AuthContext.tsx"
 
-interface CommentSectionProps {
+interface CommentPanelProps {
     objectType: string
     objectId: number | string
 }
 
-export default function CommentSection({ objectType, objectId }: CommentSectionProps): JSX.Element {
+export default function CommentPanel({ objectType, objectId }: CommentPanelProps): JSX.Element {
     const { user } = useAuth()
     const [comments, setComments] = useState<Comment[]>([])
     const [loading, setLoading] = useState(true)

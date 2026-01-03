@@ -8,7 +8,7 @@ import type { PasswordChange, UserUpdate } from "../types"
 import { ProtectedRoute } from "@/client/components"
 import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
-import { CommentAndLogSection } from "@/domains/comment/views"
+import { CommentAndLogSection } from "@/domains/system/components"
 
 export default function UserDetailPage(): JSX.Element {
     const { email } = useParams<{ email: string }>()

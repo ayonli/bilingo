@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/comment/models"
-	impl "github.com/ayonli/bilingo/domains/comment/repo/db"
-	"github.com/ayonli/bilingo/domains/comment/types"
+	"github.com/ayonli/bilingo/domains/system/models"
+	impl "github.com/ayonli/bilingo/domains/system/repo/db"
+	"github.com/ayonli/bilingo/domains/system/types"
 )
 
 var CommentRepo ICommentRepo = &impl.CommentRepo{}

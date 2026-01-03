@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strconv"
 
-	domain "github.com/ayonli/bilingo/domains/comment"
-	"github.com/ayonli/bilingo/domains/comment/service"
-	"github.com/ayonli/bilingo/domains/comment/types"
+	domain "github.com/ayonli/bilingo/domains/system"
+	"github.com/ayonli/bilingo/domains/system/service"
+	"github.com/ayonli/bilingo/domains/system/types"
 	"github.com/ayonli/bilingo/server"
 	"github.com/ayonli/bilingo/server/auth"
 	"github.com/gofiber/fiber/v2"
 )
 
-var CommentApi = server.NewApiEntry("/comments", auth.UseAuth)
+var CommentApi = server.NewApiEntry("/system/comments", auth.UseAuth)
 
 func init() {
 	CommentApi.Get("/", listComments)

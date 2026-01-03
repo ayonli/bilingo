@@ -10,7 +10,7 @@ import { useAuth } from "@/client/contexts/AuthContext.tsx"
 import { alert, confirm } from "@ayonli/jsext/dialog"
 import type { User } from "@/domains/user/models"
 import { getUser } from "@/domains/user/api/user.ts"
-import { CommentAndLogSection } from "@/domains/comment/views"
+import { CommentAndLogSection } from "@/domains/system/components/index.ts"
 
 export default function ArticleDetail(): JSX.Element {
     const { id } = useParams<{ id: string }>()

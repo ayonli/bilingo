@@ -1,4 +1,4 @@
-package comment
+package system
 
 import "errors"
 

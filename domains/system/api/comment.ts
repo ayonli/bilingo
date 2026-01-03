@@ -3,7 +3,7 @@ import { ApiEntry } from "@/client"
 import type { Comment } from "../models"
 import type { CommentCreate, CommentListQuery, CommentUpdate } from "../types"
 
-const commentApi = new ApiEntry("/comments")
+const commentApi = new ApiEntry("/system/comments")
 
 export async function getComment(id: number): ApiResponse<Comment> {
     return await commentApi.get("/" + id)

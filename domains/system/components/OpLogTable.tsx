@@ -1,7 +1,7 @@
 import type { JSX } from "react"
 import { useEffect, useState } from "react"
 import { alert } from "@ayonli/jsext/dialog"
-import type { OpLog } from "../models"
+import type { OpLog } from "../models/index.ts"
 import { listOpLogs } from "../api/oplog.ts"
 import OpLogDetailDrawer from "./OpLogDetailDrawer.tsx"
 

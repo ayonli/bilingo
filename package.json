@@ -6,7 +6,7 @@
         "dev:server": "go run server/main/main.go",
         "dev:client": "vite",
         "build": "npm run build:server && npm run build:client",
-        "build:server": "go build -o ../dist/server/main server/main/main.go",
+        "build:server": "go build -o ../dist/server server/main/main.go",
         "build:client": "vite build",
         "sanitize": "npm run sanitize:go && npm run sanitize:ts",
         "sanitize:go": "golangci-lint run --fix && golangci-lint fmt",
@@ -53,15 +53,15 @@
             "./domains/user/types",
             "./domains/article/models",
             "./domains/article/types",
-            "./domains/comment/models",
-            "./domains/comment/types"
+            "./domains/system/models",
+            "./domains/system/types"
         ]
     },
     "orm-gen": {
         "paths": [
             "./domains/user/models",
             "./domains/article/models",
-            "./domains/comment/models"
+            "./domains/system/models"
         ]
     }
 }

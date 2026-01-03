@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/comment/models"
-	"github.com/ayonli/bilingo/domains/comment/repo"
-	"github.com/ayonli/bilingo/domains/comment/types"
+	"github.com/ayonli/bilingo/domains/system/models"
+	"github.com/ayonli/bilingo/domains/system/repo"
+	"github.com/ayonli/bilingo/domains/system/types"
 )
 
 func GetComment(ctx context.Context, id uint) (*models.Comment, error) {

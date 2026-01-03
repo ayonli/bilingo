@@ -6,7 +6,6 @@ import (
 	"github.com/ayonli/bilingo/common"
 )
 
-//tygo:emit import type * as common from "../../../common"
 type OpLogData struct {
 	ObjectType  string     `json:"object_type"`
 	ObjectId    string     `json:"object_id"`

@@ -7,7 +7,7 @@ import pages from "vite-plugin-pages"
 // https://vite.dev/config/
 export default defineConfig({
     build: {
-        outDir: "dist/web",
+        outDir: "dist/client",
     },
     server: {
         proxy: {
