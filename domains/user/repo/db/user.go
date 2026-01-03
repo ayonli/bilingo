@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/user"
@@ -88,7 +89,10 @@ func (r *UserRepo) Create(ctx context.Context, data *types.UserCreate) (*models.
 		return nil, db.ConnError(err)
 	}
 
+	now := time.Now()
 	user := models.User{
+		CreatedAt: now,
+		UpdatedAt: now,
 		Email:     data.Email,
 		Name:      data.Name,
 		Password:  &data.Password,
@@ -124,6 +128,8 @@ func (r *UserRepo) Update(ctx context.Context, email string, data *types.UserUpd
 	if len(updates) == 0 {
 		return user, nil // No updates needed
 	}
+
+	updates = append(updates, tables.User.UpdatedAt.Set(time.Now()))
 
 	conn, err := db.Default()
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/comment"
@@ -77,12 +78,15 @@ func (r *CommentRepo) Create(ctx context.Context, data *types.CommentCreate) (*m
 		return nil, db.ConnError(err)
 	}
 
+	now := time.Now()
 	comment := &models.Comment{
-		BizType:  data.BizType,
-		BizId:    data.BizId,
-		Content:  data.Content,
-		Author:   data.Author,
-		ParentId: data.ParentId,
+		CreatedAt: now,
+		UpdatedAt: now,
+		BizType:   data.BizType,
+		BizId:     data.BizId,
+		Content:   data.Content,
+		Author:    data.Author,
+		ParentId:  data.ParentId,
 	}
 
 	if err := gorm.G[models.Comment](conn).Create(ctx, comment); err != nil {
@@ -107,6 +111,8 @@ func (r *CommentRepo) Update(ctx context.Context, id uint, data *types.CommentUp
 	if len(updates) == 0 {
 		return comment, nil // No updates needed
 	}
+
+	updates = append(updates, tables.Comment.UpdatedAt.Set(time.Now()))
 
 	conn, err := db.Default()
 	if err != nil {

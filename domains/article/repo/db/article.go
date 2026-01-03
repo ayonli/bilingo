@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ayonli/bilingo/common"
 	domain "github.com/ayonli/bilingo/domains/article"
@@ -85,14 +86,17 @@ func (r *ArticleRepo) Create(ctx context.Context, data *types.ArticleCreate, aut
 		return nil, db.ConnError(err)
 	}
 
+	now := time.Now()
 	article := &models.Article{
-		Title:    data.Title,
-		Content:  data.Content,
-		Author:   author,
-		Category: data.Category,
-		Tags:     data.Tags,
-		Likes:    0,
-		Dislikes: 0,
+		CreatedAt: now,
+		UpdatedAt: now,
+		Title:     data.Title,
+		Content:   data.Content,
+		Author:    author,
+		Category:  data.Category,
+		Tags:      data.Tags,
+		Likes:     0,
+		Dislikes:  0,
 	}
 
 	if err := gorm.G[models.Article](conn).Create(ctx, article); err != nil {
@@ -126,6 +130,8 @@ func (r *ArticleRepo) Update(ctx context.Context, id uint, data *types.ArticleUp
 	if len(updates) == 0 {
 		return article, nil // No updates needed
 	}
+
+	updates = append(updates, tables.Article.UpdatedAt.Set(time.Now()))
 
 	conn, err := db.Default()
 	if err != nil {

@@ -431,6 +431,7 @@ import (
     "context"
     "errors"
     "fmt"
+    "time"
 
     "${modName}/common"
     domain "${modName}/domains/${name}"
@@ -496,7 +497,10 @@ func (r *${PascalName}Repo) Create(ctx context.Context, data *types.${PascalName
         return nil, db.ConnError(err)
     }
 
+    now := time.Now()
     ${camelName} := &models.${PascalName}{
+        CreatedAt: now,
+        UpdatedAt: now,
         // Map fields from data
     }
 
@@ -521,6 +525,8 @@ func (r *${PascalName}Repo) Update(ctx context.Context, id uint, data *types.${P
         return ${camelName}, nil // No updates needed
     }
 
+    updates = append(updates, tables.${PascalName}.UpdatedAt.Set(time.Now()))
+
     conn, err := db.Default()
     if err != nil {
         return nil, db.ConnError(err)
@@ -528,7 +534,7 @@ func (r *${PascalName}Repo) Update(ctx context.Context, id uint, data *types.${P
 
     rowsAffected, err := gorm.G[models.${PascalName}](conn).Where(tables.${PascalName}.ID.Eq(id)).Set(updates...).Update(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update article: %w", err)
+		return nil, fmt.Errorf("failed to update ${name}: %w", err)
 	} else if rowsAffected == 0 {
 		return nil, domain.Err${PascalName}NotFound
 	}
