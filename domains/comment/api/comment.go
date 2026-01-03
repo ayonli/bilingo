@@ -81,7 +81,7 @@ func updateComment(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || comment.Author != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
@@ -116,7 +116,7 @@ func deleteComment(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || comment.Author != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}

@@ -16,7 +16,7 @@ export default function ArticleDetail(): JSX.Element {
     const { id } = useParams<{ id: string }>()
     const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
-    const { currentUser } = useAuth()
+    const { user } = useAuth()
     const [article, setArticle] = useState<Article | null>(null)
     const [authorUser, setAuthorUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
@@ -28,7 +28,7 @@ export default function ArticleDetail(): JSX.Element {
     const [saving, setSaving] = useState(false)
 
     // Check if current user is the author
-    const isAuthor = currentUser && article && currentUser.email === article.author
+    const isAuthor = user && article && user.email === article.author
 
     async function loadArticle(): Promise<void> {
         if (!id) { return }
@@ -165,7 +165,7 @@ export default function ArticleDetail(): JSX.Element {
 
     if (editMode) {
         // Check if user is logged in and is the author
-        if (!currentUser) {
+        if (!user) {
             return (
                 <div className="max-w-4xl mx-auto">
                     <div className="bg-white shadow rounded-lg p-12 text-center">

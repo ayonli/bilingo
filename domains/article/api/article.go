@@ -56,8 +56,8 @@ func listArticles(ctx *fiber.Ctx) error {
 
 func createArticle(ctx *fiber.Ctx) error {
 	// Get authenticated user
-	user, ok := auth.GetUser(ctx.UserContext())
-	if !ok {
+	user := auth.GetUser(ctx.UserContext())
+	if user == nil {
 		return server.Error(ctx, 401, auth.ErrUnauthorized)
 	}
 
@@ -88,7 +88,7 @@ func updateArticle(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || article.Author != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
@@ -123,7 +123,7 @@ func deleteArticle(ctx *fiber.Ctx) error {
 	}
 
 	// Check if user is the author
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || article.Author != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}

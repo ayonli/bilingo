@@ -9,13 +9,13 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps): JSX.Element {
-    const { currentUser, loading, setCurrentUser } = useAuth()
+    const { loading, user, setUser } = useAuth()
     const [showLoginDialog, setShowLoginDialog] = useState(false)
 
     async function handleLogin(email: string, password: string): Promise<void> {
         const result = await login({ email, password })
         if (result.success) {
-            setCurrentUser(result.data)
+            setUser(result.data)
             setShowLoginDialog(false)
         } else {
             throw new Error(result.message)
@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps): JSX.Element {
         )
     }
 
-    if (!currentUser) {
+    if (!user) {
         return (
             <div className="max-w-2xl mx-auto">
                 <div className="bg-white shadow rounded-lg p-12 text-center">

@@ -3,46 +3,48 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "../../domains/user/models"
 import { getMe } from "../../domains/user/api/user.ts"
 
-interface AuthContextValue {
-    currentUser: User | null
+interface AuthContextData {
     loading: boolean
-    setCurrentUser: (user: User | null) => void
-    refreshUser: () => Promise<void>
+    user: User | null
+    setUser: (user: User | null) => void
+    refresh: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+const AuthContext = createContext<AuthContextData | undefined>(undefined)
 
 interface AuthProviderProps {
     readonly children: ReactNode
 }
 
 export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
-    const [currentUser, setCurrentUser] = useState<User | null>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
 
-    async function refreshUser(): Promise<void> {
+    async function refresh(): Promise<void> {
         setLoading(true)
         const result = await getMe()
         if (result.success) {
-            setCurrentUser(result.data)
+            setUser(result.data)
         } else {
-            setCurrentUser(null)
+            setUser(null)
         }
         setLoading(false)
     }
 
     useEffect(() => {
-        void refreshUser()
+        refresh().catch(console.error)
     }, [])
 
     return (
-        <AuthContext.Provider value={{ currentUser, loading, setCurrentUser, refreshUser }}>
+        <AuthContext.Provider
+            value={{ user, loading, setUser, refresh }}
+        >
             {children}
         </AuthContext.Provider>
     )
 }
 
-export function useAuth(): AuthContextValue {
+export function useAuth(): AuthContextData {
     const context = useContext(AuthContext)
     if (context === undefined) {
         throw new Error("useAuth must be used within an AuthProvider")

@@ -13,14 +13,14 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps): JSX.Element {
     const location = useLocation()
     const navigate = useNavigate()
-    const currentYear = new Date().getFullYear()
-    const { currentUser, loading, setCurrentUser } = useAuth()
+    const year = new Date().getFullYear()
+    const { loading, user, setUser } = useAuth()
     const [showLoginDialog, setShowLoginDialog] = useState(false)
 
     async function handleLogout(): Promise<void> {
         const result = await logout()
         if (result.success) {
-            setCurrentUser(null)
+            setUser(null)
             navigate("/")
         } else {
             await alert("登出失败: " + result.message)
@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps): JSX.Element {
     async function handleLogin(email: string, password: string): Promise<void> {
         const result = await login({ email, password })
         if (result.success) {
-            setCurrentUser(result.data)
+            setUser(result.data)
             setShowLoginDialog(false)
         } else {
             throw new Error(result.message)
@@ -75,11 +75,11 @@ export function Layout({ children }: LayoutProps): JSX.Element {
                                         加载中...
                                     </span>
                                 )
-                                : currentUser
+                                : user
                                 ? (
                                     <>
                                         <span className="text-gray-700 text-sm">
-                                            欢迎, {currentUser.name}
+                                            欢迎, {user.name}
                                         </span>
                                         <button
                                             type="button"
@@ -110,7 +110,7 @@ export function Layout({ children }: LayoutProps): JSX.Element {
 
             <footer className="bg-gray-50 border-t border-gray-200 py-4">
                 <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-                    © {currentYear} A-yon Lee
+                    © {year} A-yon Lee
                 </div>
             </footer>
 

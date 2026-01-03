@@ -12,7 +12,7 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ objectType, objectId }: CommentSectionProps): JSX.Element {
-    const { currentUser } = useAuth()
+    const { user } = useAuth()
     const [comments, setComments] = useState<Comment[]>([])
     const [loading, setLoading] = useState(true)
     const [newComment, setNewComment] = useState("")
@@ -48,10 +48,10 @@ export default function CommentSection({ objectType, objectId }: CommentSectionP
     }, [objectType, objectId])
 
     useEffect(() => {
-        if (currentUser) {
-            setAuthorEmail(currentUser.email)
+        if (user) {
+            setAuthorEmail(user.email)
         }
-    }, [currentUser])
+    }, [user])
 
     async function handleSubmit(e: React.FormEvent): Promise<void> {
         e.preventDefault()
@@ -148,7 +148,7 @@ export default function CommentSection({ objectType, objectId }: CommentSectionP
 
     function renderComment(comment: Comment, level = 0): JSX.Element {
         const isEditing = editingId === comment.id
-        const isAuthor = currentUser && currentUser.email === comment.author
+        const isAuthor = user && user.email === comment.author
         const replies = getCommentsByParent(comment.id)
 
         return (

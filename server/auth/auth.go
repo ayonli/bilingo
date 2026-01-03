@@ -110,11 +110,12 @@ func storeUserInContext(ctx *fiber.Ctx, user *models.User) {
 	ctx.SetUserContext(newCtx)
 }
 
-// GetUser retrieves the authenticated user from fiber context
-// Pass ctx.UserContext() when calling this function
-func GetUser(ctx context.Context) (*models.User, bool) {
-	user, ok := ctx.Value(userContextKey).(*models.User)
-	return user, ok
+// GetUser retrieves the authenticated user from fiber context;
+// Pass ctx.UserContext() when calling this function;
+// Returns nil if user is not authenticated.
+func GetUser(ctx context.Context) *models.User {
+	user, _ := ctx.Value(userContextKey).(*models.User)
+	return user
 }
 
 // RequireAuth middleware ensures user is authenticated

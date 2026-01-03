@@ -80,7 +80,7 @@ func updateUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
 	// Check if user is updating their own profile
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || email != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
@@ -108,7 +108,7 @@ func deleteUser(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
 	// Check if user is deleting their own account
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || email != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
@@ -128,7 +128,7 @@ func changePassword(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
 	// Check if user is changing their own password
-	user, _ := auth.GetUser(ctx.UserContext())
+	user := auth.GetUser(ctx.UserContext())
 	if user == nil || email != user.Email {
 		return server.Error(ctx, 403, auth.ErrForbidden)
 	}
@@ -199,8 +199,8 @@ func logout(ctx *fiber.Ctx) error {
 }
 
 func getMe(ctx *fiber.Ctx) error {
-	user, ok := auth.GetUser(ctx.UserContext())
-	if !ok {
+	user := auth.GetUser(ctx.UserContext())
+	if user == nil {
 		return server.Error(ctx, 401, fmt.Errorf("user not logged in"))
 	}
 

@@ -14,7 +14,7 @@ export default function UserDetailPage(): JSX.Element {
     const { email } = useParams<{ email: string }>()
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
-    const { currentUser } = useAuth()
+    const { user: currentUser } = useAuth()
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
