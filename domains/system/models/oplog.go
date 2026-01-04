@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/ayonli/bilingo/domains/system/types"
+	"bilingo/domains/system/types"
 )
 
 type OpLog struct {

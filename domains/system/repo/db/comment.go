@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ayonli/bilingo/common"
-	domain "github.com/ayonli/bilingo/domains/system"
-	"github.com/ayonli/bilingo/domains/system/models"
-	"github.com/ayonli/bilingo/domains/system/tables"
-	"github.com/ayonli/bilingo/domains/system/types"
-	"github.com/ayonli/bilingo/server/db"
+	"bilingo/common"
+	domain "bilingo/domains/system"
+	"bilingo/domains/system/models"
+	"bilingo/domains/system/tables"
+	"bilingo/domains/system/types"
+	"bilingo/server/db"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

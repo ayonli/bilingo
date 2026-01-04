@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	"github.com/ayonli/bilingo/common"
+	"bilingo/common"
 )
 
 type OpLogBase struct {

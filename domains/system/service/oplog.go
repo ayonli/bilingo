@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/system/models"
-	"github.com/ayonli/bilingo/domains/system/tables"
-	"github.com/ayonli/bilingo/domains/system/types"
-	"github.com/ayonli/bilingo/server/db"
+	"bilingo/common"
+	"bilingo/domains/system/models"
+	"bilingo/domains/system/tables"
+	"bilingo/domains/system/types"
+	"bilingo/server/db"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

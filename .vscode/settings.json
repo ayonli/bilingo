@@ -21,6 +21,9 @@
         "fmt",
         "--stdin"
     ],
+    "gopls": {
+        "ui.navigation.importShortcut": "Definition"
+    },
     "[javascript]": {
         "editor.defaultFormatter": "ayonli.deno-tools"
     },
@@ -50,10 +53,5 @@
     },
     "[scss]": {
         "editor.defaultFormatter": "ayonli.deno-tools"
-    },
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff"
-    },
-    "python.languageServer": "None",
-    "ruff.interpreter": ["python3.12"]
+    }
 }

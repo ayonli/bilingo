@@ -3,10 +3,11 @@ package api
 import (
 	"fmt"
 
-	"github.com/ayonli/bilingo/domains/system/service"
-	"github.com/ayonli/bilingo/domains/system/types"
-	"github.com/ayonli/bilingo/server"
-	"github.com/ayonli/bilingo/server/auth"
+	"bilingo/domains/system/service"
+	"bilingo/domains/system/types"
+	"bilingo/server"
+	"bilingo/server/auth"
+
 	"github.com/gofiber/fiber/v2"
 )
 

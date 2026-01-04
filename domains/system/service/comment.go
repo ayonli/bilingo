@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/system/models"
-	"github.com/ayonli/bilingo/domains/system/repo"
-	"github.com/ayonli/bilingo/domains/system/types"
+	"bilingo/common"
+	"bilingo/domains/system/models"
+	"bilingo/domains/system/repo"
+	"bilingo/domains/system/types"
 )
 
 func GetComment(ctx context.Context, id uint) (*models.Comment, error) {

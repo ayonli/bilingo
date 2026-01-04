@@ -5,11 +5,11 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/article/models"
-	"github.com/ayonli/bilingo/domains/article/repo"
-	"github.com/ayonli/bilingo/domains/article/types"
-	"github.com/ayonli/bilingo/server/oplog"
+	"bilingo/common"
+	"bilingo/domains/article/models"
+	"bilingo/domains/article/repo"
+	"bilingo/domains/article/types"
+	"bilingo/server/oplog"
 )
 
 var logger = oplog.NewOpLogger("article")

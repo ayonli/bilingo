@@ -3,10 +3,10 @@ package repo
 import (
 	"context"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/article/models"
-	impl "github.com/ayonli/bilingo/domains/article/repo/db"
-	"github.com/ayonli/bilingo/domains/article/types"
+	"bilingo/common"
+	"bilingo/domains/article/models"
+	impl "bilingo/domains/article/repo/db"
+	"bilingo/domains/article/types"
 )
 
 var ArticleRepo IArticleRepo = &impl.ArticleRepo{}

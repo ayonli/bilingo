@@ -5,7 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ayonli/bilingo/config"
+	"bilingo/config"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"

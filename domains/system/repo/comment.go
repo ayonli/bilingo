@@ -3,10 +3,10 @@ package repo
 import (
 	"context"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/domains/system/models"
-	impl "github.com/ayonli/bilingo/domains/system/repo/db"
-	"github.com/ayonli/bilingo/domains/system/types"
+	"bilingo/common"
+	"bilingo/domains/system/models"
+	impl "bilingo/domains/system/repo/db"
+	"bilingo/domains/system/types"
 )
 
 var CommentRepo ICommentRepo = &impl.CommentRepo{}

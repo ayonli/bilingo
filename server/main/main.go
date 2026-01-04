@@ -5,14 +5,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ayonli/bilingo/config"
-	"github.com/ayonli/bilingo/server"
+	"bilingo/config"
+	"bilingo/server"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 
-	_ "github.com/ayonli/bilingo/domains/article/api"
-	_ "github.com/ayonli/bilingo/domains/system/api"
-	_ "github.com/ayonli/bilingo/domains/user/api"
+	_ "bilingo/domains/article/api"
+	_ "bilingo/domains/system/api"
+	_ "bilingo/domains/user/api"
 )
 
 func init() {

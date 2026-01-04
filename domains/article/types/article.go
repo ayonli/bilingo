@@ -1,6 +1,6 @@
 package types
 
-import "github.com/ayonli/bilingo/common"
+import "bilingo/common"
 
 //tygo:emit import type * as common from "@/common"
 type ArticleCreate struct {

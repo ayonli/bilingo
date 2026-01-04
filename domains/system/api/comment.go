@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
-	domain "github.com/ayonli/bilingo/domains/system"
-	"github.com/ayonli/bilingo/domains/system/service"
-	"github.com/ayonli/bilingo/domains/system/types"
-	"github.com/ayonli/bilingo/server"
-	"github.com/ayonli/bilingo/server/auth"
+	domain "bilingo/domains/system"
+	"bilingo/domains/system/service"
+	"bilingo/domains/system/types"
+	"bilingo/server"
+	"bilingo/server/auth"
+
 	"github.com/gofiber/fiber/v2"
 )
 

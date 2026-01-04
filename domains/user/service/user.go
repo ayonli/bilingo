@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ayonli/bilingo/common"
-	domain "github.com/ayonli/bilingo/domains/user"
-	"github.com/ayonli/bilingo/domains/user/models"
-	repo "github.com/ayonli/bilingo/domains/user/repo"
-	"github.com/ayonli/bilingo/domains/user/types"
-	"github.com/ayonli/bilingo/server/timing"
+	"bilingo/common"
+	domain "bilingo/domains/user"
+	"bilingo/domains/user/models"
+	repo "bilingo/domains/user/repo"
+	"bilingo/domains/user/types"
+	"bilingo/server/timing"
+
 	"golang.org/x/crypto/bcrypt"
 )
 

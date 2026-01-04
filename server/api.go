@@ -1,8 +1,9 @@
 package server
 
 import (
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/server/timing"
+	"bilingo/common"
+	"bilingo/server/timing"
+
 	"github.com/gofiber/fiber/v2"
 )
 

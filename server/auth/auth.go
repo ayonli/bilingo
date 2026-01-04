@@ -5,10 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ayonli/bilingo/common"
-	"github.com/ayonli/bilingo/config"
-	"github.com/ayonli/bilingo/domains/user/models"
-	"github.com/ayonli/bilingo/domains/user/repo"
+	"bilingo/common"
+	"bilingo/config"
+	"bilingo/domains/user/models"
+	"bilingo/domains/user/repo"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )

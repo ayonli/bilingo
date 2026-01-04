@@ -5,11 +5,17 @@ embraces a domain-driven design and allow us writing Go and TS code side by side
 
 ## Requirements
 
-- Go v1.24+ (backend)
-  - Tygo
-  - GORM CLI
-- Node.js v22.0+ (run and build frontend application)
+- Go v1.24+ (backend) Goto [https://go.dev/doc/install](https://go.dev/doc/install) for installation
+  instruction
+  - golangci-lint: `curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.7.2`
+  - Tygo: `go install github.com/gzuidhof/tygo@latest`
+  - GORM CLI: `go install gorm.io/cli/gorm@latest`
+  - Delve: In VSCode or Cursor, open command palette with `Ctrl/Cmd + Shirt + P`, select `Go: Install/Update Tools`,
+    select `dlv` and click `OK`.
+- Node.js v22.0+ (run and build frontend application) Goto [https://nodejs.org/en/download](https://nodejs.org/en/download)
+  for installation instruction.
 - Deno v2.5+ (manage frontend dependencies, lint and format TS code)
+  `curl -fsSL https://deno.land/install.sh | sh`
 
 ## Domain Framework
 

@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ayonli/bilingo/config"
-	domain "github.com/ayonli/bilingo/domains/user"
-	"github.com/ayonli/bilingo/domains/user/service"
-	"github.com/ayonli/bilingo/domains/user/types"
-	"github.com/ayonli/bilingo/server"
-	"github.com/ayonli/bilingo/server/auth"
-	"github.com/ayonli/bilingo/utils"
+	"bilingo/config"
+	domain "bilingo/domains/user"
+	"bilingo/domains/user/service"
+	"bilingo/domains/user/types"
+	"bilingo/server"
+	"bilingo/server/auth"
+	"bilingo/utils"
+
 	"github.com/gofiber/fiber/v2"
 )
 

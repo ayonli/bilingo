@@ -3,10 +3,10 @@ package oplog
 import (
 	"context"
 
-	"github.com/ayonli/bilingo/domains/system/service"
-	"github.com/ayonli/bilingo/domains/system/types"
-	"github.com/ayonli/bilingo/server"
-	"github.com/ayonli/bilingo/server/auth"
+	"bilingo/domains/system/service"
+	"bilingo/domains/system/types"
+	"bilingo/server"
+	"bilingo/server/auth"
 )
 
 type OpLogger struct {
